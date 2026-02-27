@@ -51,6 +51,7 @@
 - DOM source/sink 分析骨架
 - payload 生成器（扩展规则集）
 - `--fuzzer`（向量模式 + 文件 payload 模式）
+- `--fuzzer` 主动发包模式（有 URL 时）
 - `--encode base64` 编码链路
 - 扫描报告 JSON 输出
 - crawl 模式（seed + level + DOM 检测 + form 提取）
@@ -156,6 +157,19 @@ go run ./cmd/xsstrike-go --fuzzer --limit 10
 作用：
 - 输出 fuzz payload 规模
 - 生成并展示上下文向量样例
+
+### 6.1) Fuzzer 主动发包（接近原版 singleFuzz）
+
+```bash
+go run ./cmd/xsstrike-go \
+  --fuzzer \
+  --url "https://example.com/?q=1" \
+  --limit 10
+```
+
+作用：
+- 对目标参数逐 fuzz payload 发送请求
+- 统计每条 payload 的反射命中情况
 
 ### 7) 文件 payload 模式（兼容 `-f/--file`）
 

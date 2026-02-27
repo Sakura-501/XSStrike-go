@@ -31,6 +31,7 @@ and this project follows the migration-first workflow:
 - Reflection analysis chain (`html parser`, `filter checker`, `checker`, context generator)
 - Path-mode injection support in scan and bruteforce workflows
 - RetireJS-compatible component vulnerability scanning integrated into crawl
+- Active request fuzzing mode for `--fuzzer --url` workflows
 - Python behavior parity tests for selected modules
 - GitHub Actions CI workflow (`go test`)
 
