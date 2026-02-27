@@ -1,0 +1,33 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+xsstrike-go
+
+# Test and coverage
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Go workspace
+bin/
+pkg/
+
+# Module/download/cache
+vendor/
+
+# Logs
+*.log
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
