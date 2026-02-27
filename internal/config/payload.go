@@ -18,6 +18,9 @@ var DefaultFunctions = []string{
 	"[8].find(confirm)",
 	"confirm()",
 	"(confirm)()",
+	"co\u006efir\u006d()",
+	"(prompt)``",
+	"a=prompt,a()",
 }
 
 var DefaultEnds = []string{">", "//"}
