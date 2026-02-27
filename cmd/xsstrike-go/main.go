@@ -166,6 +166,11 @@ func printScanReport(scanReport *scan.Report) {
 	}
 
 	fmt.Printf("DOM summary -> sources=%d sinks=%d potential=%t\n", scanReport.DOM.Sources, scanReport.DOM.Sinks, scanReport.DOM.Potential)
+	if scanReport.WAF.Detected {
+		fmt.Printf("WAF detected -> %s (score=%d)\n", scanReport.WAF.Name, scanReport.WAF.Score)
+	} else {
+		fmt.Println("WAF detected -> no")
+	}
 	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d\n", scanReport.Method, scanReport.Tested, scanReport.Reflected)
 	for _, item := range scanReport.Findings {
 		status := "not-reflected"

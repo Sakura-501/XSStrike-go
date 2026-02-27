@@ -10,6 +10,7 @@ import (
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
 	"github.com/Sakura-501/XSStrike-go/internal/utils"
+	"github.com/Sakura-501/XSStrike-go/internal/waf"
 )
 
 type ParamResult struct {
@@ -29,6 +30,7 @@ type Report struct {
 	NoParams    bool          `json:"no_params"`
 	RequestBase string        `json:"request_base"`
 	DOM         dom.Report    `json:"dom"`
+	WAF         waf.Result    `json:"waf"`
 }
 
 type Runner struct {
@@ -61,6 +63,9 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 
 	if domResp, err := baselineResponse(r.Client, base, params, headers, isGET, jsonData); err == nil {
 		report.DOM = dom.Analyze(domResp.Body)
+	}
+	if detector, err := waf.NewDefault(); err == nil {
+		report.WAF = detector.Detect(r.Client, base, params, headers, isGET, jsonData)
 	}
 
 	keys := sortedKeys(params)
