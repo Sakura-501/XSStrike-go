@@ -7,6 +7,7 @@ import (
 
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/ui"
+	"github.com/Sakura-501/XSStrike-go/internal/utils"
 	"github.com/Sakura-501/XSStrike-go/internal/version"
 )
 
@@ -37,4 +38,16 @@ func main() {
 	fmt.Print(ui.Banner())
 	fmt.Printf("Target: %s\n", opts.URL)
 	fmt.Printf("Runtime defaults -> timeout=%ds threads=%d delay=%ds\n", opts.Timeout, opts.ThreadCount, opts.Delay)
+
+	headers := utils.ExtractHeaders(opts.HeadersRaw)
+	if len(headers) > 0 {
+		fmt.Printf("Custom headers parsed: %d\n", len(headers))
+	}
+
+	params := utils.ParseParams(opts.URL, opts.Data, opts.JSON)
+	if len(params) == 0 {
+		fmt.Println("No parameters found")
+		return
+	}
+	fmt.Printf("Parsed parameters: %d\n", len(params))
 }
