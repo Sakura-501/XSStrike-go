@@ -80,7 +80,7 @@ func runSingleScan(opts *options.Options, headers map[string]string, client *req
 			fmt.Printf("Payload file error: %v\n", err)
 			os.Exit(1)
 		}
-		bfReport, err := bruteforce.Run(client, opts.URL, opts.Data, opts.JSON, headers, payloadList, opts.Encode)
+		bfReport, err := bruteforce.Run(client, opts.URL, opts.Data, opts.JSON, opts.Path, headers, payloadList, opts.Encode)
 		if err != nil {
 			fmt.Printf("Bruteforce error: %v\n", err)
 			os.Exit(1)

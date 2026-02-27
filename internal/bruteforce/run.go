@@ -21,15 +21,21 @@ type Report struct {
 	NoParams bool   `json:"no_params"`
 }
 
-func Run(client *requester.Client, target string, data string, jsonData bool, headers map[string]string, payloads []string, encode string) (Report, error) {
+func Run(client *requester.Client, target string, data string, jsonData bool, pathMode bool, headers map[string]string, payloads []string, encode string) (Report, error) {
 	report := Report{Target: target, Hits: []Hit{}}
 	if client == nil {
 		return report, nil
 	}
 
-	isGET := strings.TrimSpace(data) == ""
+	isGET := strings.TrimSpace(data) == "" || pathMode
 	base := utils.GetURL(target, isGET)
-	params := utils.ParseParams(target, data, jsonData)
+	params := map[string]string{}
+	if pathMode {
+		params = utils.URLPathToMap(target)
+		base = target
+	} else {
+		params = utils.ParseParams(target, data, jsonData)
+	}
 	if len(params) == 0 {
 		report.NoParams = true
 		return report, nil
@@ -46,7 +52,10 @@ func Run(client *requester.Client, target string, data string, jsonData bool, he
 				resp *requester.Response
 				err  error
 			)
-			if isGET {
+			if pathMode {
+				requestURL := utils.MapToURLPath(base, current)
+				resp, err = client.DoGet(requestURL, map[string]string{}, headers)
+			} else if isGET {
 				resp, err = client.DoGet(base, current, headers)
 			} else {
 				resp, err = client.DoPost(base, current, headers, jsonData)

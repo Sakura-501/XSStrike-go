@@ -20,6 +20,7 @@ func TestRunGET(t *testing.T) {
 		server.URL+"?q=1",
 		"",
 		false,
+		false,
 		map[string]string{},
 		[]string{"AAA", "BBB"},
 		"",
@@ -41,6 +42,7 @@ func TestRunNoParams(t *testing.T) {
 		"https://example.com",
 		"",
 		false,
+		false,
 		map[string]string{},
 		[]string{"AAA"},
 		"",
@@ -50,5 +52,32 @@ func TestRunNoParams(t *testing.T) {
 	}
 	if !report.NoParams {
 		t.Fatalf("expected no params")
+	}
+}
+
+func TestRunPathMode(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("path=" + r.URL.Path))
+	}))
+	defer server.Close()
+
+	report, err := Run(
+		requester.New(requester.Config{TimeoutSeconds: 5}),
+		server.URL+"/a/b",
+		"",
+		false,
+		true,
+		map[string]string{},
+		[]string{"PAYLOAD"},
+		"",
+	)
+	if err != nil {
+		t.Fatalf("run error: %v", err)
+	}
+	if report.NoParams {
+		t.Fatalf("expected path params")
+	}
+	if report.Tested != 2 {
+		t.Fatalf("expected two path entries tested, got %d", report.Tested)
 	}
 }
