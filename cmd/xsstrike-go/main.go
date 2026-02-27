@@ -10,6 +10,7 @@ import (
 	"github.com/Sakura-501/XSStrike-go/internal/files"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/payload"
+	"github.com/Sakura-501/XSStrike-go/internal/report"
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
 	"github.com/Sakura-501/XSStrike-go/internal/scan"
 	"github.com/Sakura-501/XSStrike-go/internal/state"
@@ -62,13 +63,21 @@ func main() {
 
 	client := requester.New(requester.Config{TimeoutSeconds: opts.Timeout, DelaySeconds: opts.Delay, Proxy: opts.Proxy})
 	runner := scan.NewRunner(client)
-	report, err := runner.Run(opts.URL, opts.Data, headers, opts.JSON, opts.Encode)
+	scanReport, err := runner.Run(opts.URL, opts.Data, headers, opts.JSON, opts.Encode)
 	if err != nil {
 		fmt.Printf("Scan error: %v\n", err)
 		os.Exit(1)
 	}
-	state.Global.Set("scanReport", report)
-	printScanReport(report)
+	state.Global.Set("scanReport", scanReport)
+	printScanReport(scanReport)
+
+	if opts.OutputJSON != "" {
+		if err := report.WriteJSON(opts.OutputJSON, scanReport); err != nil {
+			fmt.Printf("Write output error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Scan report written: %s\n", opts.OutputJSON)
+	}
 }
 
 func runFuzzer(opts *options.Options) {
@@ -150,13 +159,13 @@ func mergedHeaders(raw string) map[string]string {
 	return headers
 }
 
-func printScanReport(report *scan.Report) {
-	if report.NoParams {
+func printScanReport(scanReport *scan.Report) {
+	if scanReport.NoParams {
 		fmt.Println("No parameters to test.")
 		return
 	}
-	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d\n", report.Method, report.Tested, report.Reflected)
-	for _, item := range report.Findings {
+	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d\n", scanReport.Method, scanReport.Tested, scanReport.Reflected)
+	for _, item := range scanReport.Findings {
 		status := "not-reflected"
 		if item.Reflected {
 			status = "reflected"

@@ -22,6 +22,7 @@ type Options struct {
 	Limit       int
 	Proxy       string
 	PayloadFile string
+	OutputJSON  string
 }
 
 func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
@@ -44,6 +45,8 @@ func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
 	fs.StringVar(&opts.Proxy, "proxy", "", "proxy url (example: http://127.0.0.1:8080)")
 	fs.StringVar(&opts.PayloadFile, "f", "", "load payloads from a file (use 'default' for built-ins)")
 	fs.StringVar(&opts.PayloadFile, "file", "", "load payloads from a file (use 'default' for built-ins)")
+	fs.StringVar(&opts.OutputJSON, "output", "", "write scan report json to file")
+	fs.StringVar(&opts.OutputJSON, "output-json", "", "write scan report json to file")
 
 	if err := fs.Parse(args); err != nil {
 		return nil, err

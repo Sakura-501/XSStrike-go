@@ -26,6 +26,9 @@ func TestParseDefaults(t *testing.T) {
 	if opts.Proxy != "" {
 		t.Fatalf("proxy should default to empty")
 	}
+	if opts.OutputJSON != "" {
+		t.Fatalf("output json should default to empty")
+	}
 }
 
 func TestParseFlags(t *testing.T) {
@@ -41,6 +44,7 @@ func TestParseFlags(t *testing.T) {
 		"--delay", "1",
 		"--encode", "base64",
 		"--proxy", "http://127.0.0.1:8080",
+		"--output", "out.json",
 	})
 	if err != nil {
 		t.Fatalf("unexpected parse error: %v", err)
@@ -60,5 +64,8 @@ func TestParseFlags(t *testing.T) {
 	}
 	if opts.Proxy != "http://127.0.0.1:8080" {
 		t.Fatalf("proxy mismatch: got %q", opts.Proxy)
+	}
+	if opts.OutputJSON != "out.json" {
+		t.Fatalf("output json mismatch: got %q", opts.OutputJSON)
 	}
 }
