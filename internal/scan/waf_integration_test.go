@@ -21,7 +21,7 @@ func TestRunWAFDetectionIntegration(t *testing.T) {
 	defer server.Close()
 
 	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
-	report, err := runner.Run(server.URL+"?q=1", "", map[string]string{}, false, "")
+	report, err := runner.Run(server.URL+"?q=1", "", map[string]string{}, false, false, "")
 	if err != nil {
 		t.Fatalf("run error: %v", err)
 	}

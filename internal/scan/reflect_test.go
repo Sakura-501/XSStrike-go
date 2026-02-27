@@ -18,7 +18,7 @@ func TestRunGETReflections(t *testing.T) {
 	defer server.Close()
 
 	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
-	report, err := runner.Run(server.URL+"?q=hello&page=1", "", map[string]string{}, false, "")
+	report, err := runner.Run(server.URL+"?q=hello&page=1", "", map[string]string{}, false, false, "")
 	if err != nil {
 		t.Fatalf("unexpected run error: %v", err)
 	}
@@ -37,7 +37,7 @@ func TestRunPOSTJSONReflections(t *testing.T) {
 	defer server.Close()
 
 	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
-	report, err := runner.Run(server.URL, `{"name":"alice"}`, map[string]string{}, true, "")
+	report, err := runner.Run(server.URL, `{"name":"alice"}`, map[string]string{}, true, false, "")
 	if err != nil {
 		t.Fatalf("unexpected run error: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestRunPOSTJSONReflections(t *testing.T) {
 
 func TestRunNoParams(t *testing.T) {
 	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
-	report, err := runner.Run("https://example.com", "", map[string]string{}, false, "")
+	report, err := runner.Run("https://example.com", "", map[string]string{}, false, false, "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -67,7 +67,7 @@ func TestRunDOMReport(t *testing.T) {
 	defer server.Close()
 
 	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
-	report, err := runner.Run(server.URL+"?a=1", "", map[string]string{}, false, "")
+	report, err := runner.Run(server.URL+"?a=1", "", map[string]string{}, false, false, "")
 	if err != nil {
 		t.Fatalf("unexpected run error: %v", err)
 	}
@@ -90,7 +90,7 @@ func TestRunGeneratesContextCandidates(t *testing.T) {
 	defer server.Close()
 
 	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
-	report, err := runner.Run(server.URL+"?q=1", "", map[string]string{}, false, "")
+	report, err := runner.Run(server.URL+"?q=1", "", map[string]string{}, false, false, "")
 	if err != nil {
 		t.Fatalf("unexpected run error: %v", err)
 	}

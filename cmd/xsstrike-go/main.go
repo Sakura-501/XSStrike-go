@@ -98,7 +98,7 @@ func runSingleScan(opts *options.Options, headers map[string]string, client *req
 	}
 
 	runner := scan.NewRunner(client)
-	scanReport, err := runner.Run(opts.URL, opts.Data, headers, opts.JSON, opts.Encode)
+	scanReport, err := runner.Run(opts.URL, opts.Data, headers, opts.JSON, opts.Path, opts.Encode)
 	if err != nil {
 		fmt.Printf("Scan error: %v\n", err)
 		os.Exit(1)

@@ -47,7 +47,7 @@ func NewRunner(client *requester.Client) *Runner {
 	return &Runner{Client: client}
 }
 
-func (r *Runner) Run(target string, data string, headers map[string]string, jsonData bool, encode string) (*Report, error) {
+func (r *Runner) Run(target string, data string, headers map[string]string, jsonData bool, pathMode bool, encode string) (*Report, error) {
 	if r.Client == nil {
 		return nil, errors.New("nil requester client")
 	}
@@ -58,9 +58,17 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 		method = "POST"
 	}
 
-	params := utils.ParseParams(target, data, jsonData)
-	normalizedTarget := normalizeTarget(r.Client, target, params, headers, isGET, jsonData)
+	seedParams := utils.ParseParams(target, data, jsonData)
+	normalizedTarget := normalizeTarget(r.Client, target, seedParams, headers, isGET, jsonData)
 	base := utils.GetURL(normalizedTarget, isGET)
+	params := map[string]string{}
+	if pathMode {
+		params = utils.URLPathToMap(normalizedTarget)
+		isGET = true
+		method = "GET"
+	} else {
+		params = utils.ParseParams(normalizedTarget, data, jsonData)
+	}
 	report := &Report{Target: normalizedTarget, Method: method, RequestBase: base, DOM: dom.Report{Checked: true, Findings: []dom.Finding{}}}
 	if len(params) == 0 {
 		report.NoParams = true
@@ -84,7 +92,10 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 			resp *requester.Response
 			err  error
 		)
-		if isGET {
+		if pathMode {
+			requestURL := utils.MapToURLPath(normalizedTarget, current)
+			resp, err = r.Client.DoGet(requestURL, map[string]string{}, headers)
+		} else if isGET {
 			resp, err = r.Client.DoGet(base, current, headers)
 		} else {
 			resp, err = r.Client.DoPost(base, current, headers, jsonData)
@@ -110,7 +121,7 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 			report.Reflected++
 			occurrences := reflection.Parse(resp.Body, encode)
 			entry.Occurrences = occurrences.Count()
-			if entry.Occurrences > 0 {
+			if entry.Occurrences > 0 && !pathMode {
 				scored := reflection.FilterCheck(r.Client, base, current, headers, isGET, jsonData, occurrences, encode)
 				vectors := reflection.GenerateCandidates(scored, resp.Body)
 				entry.Candidates, entry.TopConfidence, entry.TopPayload = summarizeVectors(vectors)
