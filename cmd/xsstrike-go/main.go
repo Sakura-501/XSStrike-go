@@ -247,7 +247,7 @@ func printScanReport(scanReport *scan.Report) {
 	} else {
 		fmt.Println("WAF detected -> no")
 	}
-	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d\n", scanReport.Method, scanReport.Tested, scanReport.Reflected)
+	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d generated_candidates=%d\n", scanReport.Method, scanReport.Tested, scanReport.Reflected, scanReport.GeneratedCandidates)
 	for _, item := range scanReport.Findings {
 		status := "not-reflected"
 		if item.Reflected {
@@ -257,7 +257,7 @@ func printScanReport(scanReport *scan.Report) {
 			fmt.Printf("- %s: error=%s\n", item.Name, item.Error)
 			continue
 		}
-		fmt.Printf("- %s: reflections=%d status=%s\n", item.Name, item.Reflections, status)
+		fmt.Printf("- %s: reflections=%d occurrences=%d candidates=%d top_conf=%d status=%s\n", item.Name, item.Reflections, item.Occurrences, item.Candidates, item.TopConfidence, status)
 	}
 }
 

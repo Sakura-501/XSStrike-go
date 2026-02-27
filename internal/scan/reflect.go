@@ -8,29 +8,35 @@ import (
 	"github.com/Sakura-501/XSStrike-go/internal/config"
 	"github.com/Sakura-501/XSStrike-go/internal/dom"
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
+	"github.com/Sakura-501/XSStrike-go/internal/reflection"
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
 	"github.com/Sakura-501/XSStrike-go/internal/utils"
 	"github.com/Sakura-501/XSStrike-go/internal/waf"
 )
 
 type ParamResult struct {
-	Name        string `json:"name"`
-	Payload     string `json:"payload"`
-	Reflections int    `json:"reflections"`
-	Reflected   bool   `json:"reflected"`
-	Error       string `json:"error,omitempty"`
+	Name          string `json:"name"`
+	Payload       string `json:"payload"`
+	Reflections   int    `json:"reflections"`
+	Reflected     bool   `json:"reflected"`
+	Occurrences   int    `json:"occurrences"`
+	Candidates    int    `json:"candidates"`
+	TopConfidence int    `json:"top_confidence,omitempty"`
+	TopPayload    string `json:"top_payload,omitempty"`
+	Error         string `json:"error,omitempty"`
 }
 
 type Report struct {
-	Target      string        `json:"target"`
-	Method      string        `json:"method"`
-	Tested      int           `json:"tested"`
-	Reflected   int           `json:"reflected"`
-	Findings    []ParamResult `json:"findings"`
-	NoParams    bool          `json:"no_params"`
-	RequestBase string        `json:"request_base"`
-	DOM         dom.Report    `json:"dom"`
-	WAF         waf.Result    `json:"waf"`
+	Target              string        `json:"target"`
+	Method              string        `json:"method"`
+	Tested              int           `json:"tested"`
+	Reflected           int           `json:"reflected"`
+	GeneratedCandidates int           `json:"generated_candidates"`
+	Findings            []ParamResult `json:"findings"`
+	NoParams            bool          `json:"no_params"`
+	RequestBase         string        `json:"request_base"`
+	DOM                 dom.Report    `json:"dom"`
+	WAF                 waf.Result    `json:"waf"`
 }
 
 type Runner struct {
@@ -102,6 +108,14 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 		entry.Reflected = entry.Reflections > 0
 		if entry.Reflected {
 			report.Reflected++
+			occurrences := reflection.Parse(resp.Body, encode)
+			entry.Occurrences = occurrences.Count()
+			if entry.Occurrences > 0 {
+				scored := reflection.FilterCheck(r.Client, base, current, headers, isGET, jsonData, occurrences, encode)
+				vectors := reflection.GenerateCandidates(scored, resp.Body)
+				entry.Candidates, entry.TopConfidence, entry.TopPayload = summarizeVectors(vectors)
+				report.GeneratedCandidates += entry.Candidates
+			}
 		}
 		report.Findings = append(report.Findings, entry)
 		report.Tested++
@@ -132,4 +146,18 @@ func sortedKeys(in map[string]string) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+func summarizeVectors(vectors map[int][]string) (total int, topConfidence int, topPayload string) {
+	for confidence, list := range vectors {
+		total += len(list)
+		if len(list) == 0 {
+			continue
+		}
+		if confidence > topConfidence || (confidence == topConfidence && topPayload == "") {
+			topConfidence = confidence
+			topPayload = list[0]
+		}
+	}
+	return total, topConfidence, topPayload
 }

@@ -81,3 +81,23 @@ func TestRunDOMReport(t *testing.T) {
 		t.Fatalf("expected dom potential flag")
 	}
 }
+
+func TestRunGeneratesContextCandidates(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query().Get("q")
+		_, _ = w.Write([]byte(`<a href="` + q + `">x</a>`))
+	}))
+	defer server.Close()
+
+	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
+	report, err := runner.Run(server.URL+"?q=1", "", map[string]string{}, false, "")
+	if err != nil {
+		t.Fatalf("unexpected run error: %v", err)
+	}
+	if report.GeneratedCandidates == 0 {
+		t.Fatalf("expected generated candidates")
+	}
+	if len(report.Findings) == 0 || report.Findings[0].Occurrences == 0 {
+		t.Fatalf("expected occurrence details in findings: %+v", report.Findings)
+	}
+}
