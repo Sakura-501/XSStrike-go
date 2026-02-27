@@ -31,3 +31,7 @@ vendor/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Benchmark workspace
+benchmarks/corpus/public/_cache/
+benchmarks/results/

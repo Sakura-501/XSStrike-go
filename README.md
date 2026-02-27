@@ -75,6 +75,16 @@
 - 当出现重大能力变化，或自上个版本累计超过 `10` 个功能小点，必须发布新版本。
 - 详细规则见 [RELEASE_POLICY.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/RELEASE_POLICY.md)。
 
+## 公开语料与评测准备
+
+- 项目已接入公开 XSS payload 语料拉取流程，见 [benchmarks/corpus/README.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/corpus/README.md)。
+- 语料来源包括多个公开仓库，并会去重合并为 `benchmarks/corpus/public/merged.txt`。
+- 拉取命令：
+
+```bash
+bash benchmarks/scripts/fetch_public_corpus.sh
+```
+
 ## 安装与运行
 
 ### 环境要求
