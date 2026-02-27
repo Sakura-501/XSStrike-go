@@ -11,11 +11,20 @@ and this project follows the migration-first workflow:
 
 ## [Unreleased]
 
+### Added
+
+- DOM source/sink analyzer scaffold (`internal/dom`)
+- Scan report now includes DOM analysis summary and findings
+- Target URL normalization with `https -> http` fallback
+- Richer migrated default payload/function/fuzz rule sets
+- HTTP requester abstraction with timeout/delay/proxy and GET/POST support
+- Baseline reflected parameter scanner (`internal/scan`)
+- CLI integration for scan flow in default URL mode
+- File payload mode (`-f/--file`) in fuzzer workflow
+- JSON report writer (`--output/--output-json`)
+
 ### Planned
 
-- HTTP requester abstraction
-- Reflected scan baseline
-- DOM scan scaffolding
 - Crawler mode and seed management
 - WAF detection integration
 
