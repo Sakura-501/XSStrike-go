@@ -85,6 +85,17 @@
 bash benchmarks/scripts/fetch_public_corpus.sh
 ```
 
+## 基准评测（优劣性对比）
+
+- 一键评测命令：
+
+```bash
+bash benchmarks/scripts/evaluate_tool.sh
+```
+
+- 会自动启动本地靶场、执行 scan/fuzzer/bruteforce，并生成 `summary.md` 结论。
+- 详细说明见 [benchmarks/README.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/README.md)。
+
 ## 安装与运行
 
 ### 环境要求
