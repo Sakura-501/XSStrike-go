@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-xsstrike-go
+/xsstrike-go
 
 # Test and coverage
 *.test

@@ -8,6 +8,7 @@ import (
 	"github.com/Sakura-501/XSStrike-go/internal/config"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/payload"
+	"github.com/Sakura-501/XSStrike-go/internal/state"
 	"github.com/Sakura-501/XSStrike-go/internal/ui"
 	"github.com/Sakura-501/XSStrike-go/internal/utils"
 	"github.com/Sakura-501/XSStrike-go/internal/version"
@@ -26,6 +27,7 @@ func main() {
 	if err != nil {
 		os.Exit(2)
 	}
+	state.Global.Set("options", opts)
 
 	if opts.Version {
 		fmt.Printf("%s %s\n", version.AppName, version.Version)
@@ -48,11 +50,15 @@ func main() {
 	fmt.Printf("Target: %s\n", opts.URL)
 
 	headers := utils.ExtractHeaders(opts.HeadersRaw)
+	state.Global.Set("headers", headers)
+	state.Global.Set("checkedScripts", map[string]struct{}{})
+
 	if len(headers) > 0 {
 		fmt.Printf("Custom headers parsed: %d\n", len(headers))
 	}
 
 	params := utils.ParseParams(opts.URL, opts.Data, opts.JSON)
+	state.Global.Set("params", params)
 	if len(params) == 0 {
 		fmt.Println("No parameters found")
 		return
@@ -71,6 +77,7 @@ func runFuzzer(opts *options.Options) {
 		Ends:          config.DefaultEnds,
 		Bait:          config.XSSChecker,
 	}, nil)
+	state.Global.Set("vectors", vectors)
 
 	limit := opts.Limit
 	if limit < 0 {
