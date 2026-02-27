@@ -10,6 +10,7 @@ import (
 	"github.com/Sakura-501/XSStrike-go/internal/crawl"
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
 	"github.com/Sakura-501/XSStrike-go/internal/files"
+	"github.com/Sakura-501/XSStrike-go/internal/fuzz"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/payload"
 	"github.com/Sakura-501/XSStrike-go/internal/report"
@@ -157,6 +158,35 @@ func runCrawl(opts *options.Options, headers map[string]string, client *requeste
 }
 
 func runFuzzer(opts *options.Options) {
+	if opts.URL != "" {
+		headers := mergedHeaders(opts.HeadersRaw)
+		client := requester.New(requester.Config{TimeoutSeconds: opts.Timeout, DelaySeconds: opts.Delay, Proxy: opts.Proxy})
+		payloadList := config.DefaultFuzzes
+		if opts.PayloadFile != "" {
+			list, err := resolvePayloadList(opts.PayloadFile)
+			if err != nil {
+				fmt.Printf("Payload file error: %v\n", err)
+				os.Exit(1)
+			}
+			payloadList = list
+		}
+		fuzzReport, err := fuzz.Run(client, opts.URL, opts.Data, opts.JSON, opts.Path, headers, payloadList, opts.Encode)
+		if err != nil {
+			fmt.Printf("Fuzz error: %v\n", err)
+			os.Exit(1)
+		}
+		state.Global.Set("fuzzReport", fuzzReport)
+		printFuzzReport(fuzzReport, opts.Limit)
+		if opts.OutputJSON != "" {
+			if err := report.WriteJSON(opts.OutputJSON, fuzzReport); err != nil {
+				fmt.Printf("Write output error: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Fuzz report written: %s\n", opts.OutputJSON)
+		}
+		return
+	}
+
 	if opts.PayloadFile != "" {
 		list, err := resolvePayloadList(opts.PayloadFile)
 		if err != nil {
@@ -258,6 +288,32 @@ func printScanReport(scanReport *scan.Report) {
 			continue
 		}
 		fmt.Printf("- %s: reflections=%d occurrences=%d candidates=%d top_conf=%d status=%s\n", item.Name, item.Reflections, item.Occurrences, item.Candidates, item.TopConfidence, status)
+	}
+}
+
+func printFuzzReport(fuzzReport fuzz.Report, limit int) {
+	if fuzzReport.NoParams {
+		fmt.Println("Fuzz -> no parameters to test.")
+		return
+	}
+	fmt.Printf("Fuzz summary -> tested=%d hits=%d\n", fuzzReport.Tested, fuzzReport.Hits)
+	if limit < 0 {
+		limit = 0
+	}
+	if limit > len(fuzzReport.Results) {
+		limit = len(fuzzReport.Results)
+	}
+	for i := 0; i < limit; i++ {
+		item := fuzzReport.Results[i]
+		status := "miss"
+		if item.Reflected {
+			status = "hit"
+		}
+		if item.Error != "" {
+			fmt.Printf("- param=%s payload=%s error=%s\n", item.Param, item.Payload, item.Error)
+			continue
+		}
+		fmt.Printf("- param=%s reflections=%d payload=%s status=%s\n", item.Param, item.Reflections, item.Payload, status)
 	}
 }
 
