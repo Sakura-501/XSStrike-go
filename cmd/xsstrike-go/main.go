@@ -9,6 +9,8 @@ import (
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/payload"
+	"github.com/Sakura-501/XSStrike-go/internal/requester"
+	"github.com/Sakura-501/XSStrike-go/internal/scan"
 	"github.com/Sakura-501/XSStrike-go/internal/state"
 	"github.com/Sakura-501/XSStrike-go/internal/ui"
 	"github.com/Sakura-501/XSStrike-go/internal/utils"
@@ -49,22 +51,23 @@ func main() {
 	}
 
 	fmt.Printf("Target: %s\n", opts.URL)
-
-	headers := utils.ExtractHeaders(opts.HeadersRaw)
+	headers := mergedHeaders(opts.HeadersRaw)
 	state.Global.Set("headers", headers)
 	state.Global.Set("checkedScripts", map[string]struct{}{})
 
-	if len(headers) > 0 {
-		fmt.Printf("Custom headers parsed: %d\n", len(headers))
+	if opts.HeadersRaw != "" {
+		fmt.Printf("Custom headers parsed: %d\n", len(utils.ExtractHeaders(opts.HeadersRaw)))
 	}
 
-	params := utils.ParseParams(opts.URL, opts.Data, opts.JSON)
-	state.Global.Set("params", params)
-	if len(params) == 0 {
-		fmt.Println("No parameters found")
-		return
+	client := requester.New(requester.Config{TimeoutSeconds: opts.Timeout, DelaySeconds: opts.Delay, Proxy: opts.Proxy})
+	runner := scan.NewRunner(client)
+	report, err := runner.Run(opts.URL, opts.Data, headers, opts.JSON, opts.Encode)
+	if err != nil {
+		fmt.Printf("Scan error: %v\n", err)
+		os.Exit(1)
 	}
-	fmt.Printf("Parsed parameters: %d\n", len(params))
+	state.Global.Set("scanReport", report)
+	printScanReport(report)
 }
 
 func runFuzzer(opts *options.Options) {
@@ -97,5 +100,35 @@ func runFuzzer(opts *options.Options) {
 	for i := 0; i < limit; i++ {
 		current := encoder.Apply(opts.Encode, vectors[i])
 		fmt.Printf("[%d] %s\n", i+1, current)
+	}
+}
+
+func mergedHeaders(raw string) map[string]string {
+	headers := map[string]string{}
+	for key, value := range config.DefaultHeaders {
+		headers[key] = value
+	}
+	for key, value := range utils.ExtractHeaders(raw) {
+		headers[key] = value
+	}
+	return headers
+}
+
+func printScanReport(report *scan.Report) {
+	if report.NoParams {
+		fmt.Println("No parameters to test.")
+		return
+	}
+	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d\n", report.Method, report.Tested, report.Reflected)
+	for _, item := range report.Findings {
+		status := "not-reflected"
+		if item.Reflected {
+			status = "reflected"
+		}
+		if item.Error != "" {
+			fmt.Printf("- %s: error=%s\n", item.Name, item.Error)
+			continue
+		}
+		fmt.Printf("- %s: reflections=%d status=%s\n", item.Name, item.Reflections, status)
 	}
 }

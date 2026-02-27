@@ -23,6 +23,9 @@ func TestParseDefaults(t *testing.T) {
 	if opts.Delay != config.DefaultDelay {
 		t.Fatalf("delay mismatch: got %d want %d", opts.Delay, config.DefaultDelay)
 	}
+	if opts.Proxy != "" {
+		t.Fatalf("proxy should default to empty")
+	}
 }
 
 func TestParseFlags(t *testing.T) {
@@ -37,6 +40,7 @@ func TestParseFlags(t *testing.T) {
 		"--threads", "3",
 		"--delay", "1",
 		"--encode", "base64",
+		"--proxy", "http://127.0.0.1:8080",
 	})
 	if err != nil {
 		t.Fatalf("unexpected parse error: %v", err)
@@ -53,5 +57,8 @@ func TestParseFlags(t *testing.T) {
 	}
 	if opts.Encode != "base64" {
 		t.Fatalf("encode mismatch: got %q", opts.Encode)
+	}
+	if opts.Proxy != "http://127.0.0.1:8080" {
+		t.Fatalf("proxy mismatch: got %q", opts.Proxy)
 	}
 }

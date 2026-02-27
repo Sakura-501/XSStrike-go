@@ -20,6 +20,7 @@ type Options struct {
 	Version     bool
 	HeadersRaw  string
 	Limit       int
+	Proxy       string
 }
 
 func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
@@ -39,6 +40,7 @@ func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
 	fs.BoolVar(&opts.Version, "version", false, "show version")
 	fs.StringVar(&opts.HeadersRaw, "headers", "", "custom headers string")
 	fs.IntVar(&opts.Limit, "limit", 5, "max vectors to print in fuzzer mode")
+	fs.StringVar(&opts.Proxy, "proxy", "", "proxy url (example: http://127.0.0.1:8080)")
 
 	if err := fs.Parse(args); err != nil {
 		return nil, err
