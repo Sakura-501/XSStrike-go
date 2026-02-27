@@ -8,6 +8,8 @@ var DefaultEFillings = []string{"%09", "%0a", "%0d", "+"}
 
 var DefaultLFillings = []string{"", "%0dx"}
 
+var DefaultJFillings = []string{";"}
+
 var DefaultEventHandlers = map[string][]string{
 	"ontoggle":       {"details"},
 	"onpointerenter": {"d3v", "details", "html", "a"},
