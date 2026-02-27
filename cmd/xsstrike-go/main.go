@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Sakura-501/XSStrike-go/internal/config"
+	"github.com/Sakura-501/XSStrike-go/internal/crawl"
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
 	"github.com/Sakura-501/XSStrike-go/internal/files"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
@@ -39,7 +40,7 @@ func main() {
 		return
 	}
 
-	if opts.URL == "" && !opts.Fuzzer {
+	if opts.URL == "" && !opts.Fuzzer && !opts.Crawl && opts.SeedsFile == "" {
 		fs.Usage()
 		return
 	}
@@ -52,8 +53,19 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Target: %s\n", opts.URL)
 	headers := mergedHeaders(opts.HeadersRaw)
+	client := requester.New(requester.Config{TimeoutSeconds: opts.Timeout, DelaySeconds: opts.Delay, Proxy: opts.Proxy})
+
+	if opts.Crawl || opts.SeedsFile != "" {
+		runCrawl(opts, headers, client)
+		return
+	}
+
+	runSingleScan(opts, headers, client)
+}
+
+func runSingleScan(opts *options.Options, headers map[string]string, client *requester.Client) {
+	fmt.Printf("Target: %s\n", opts.URL)
 	state.Global.Set("headers", headers)
 	state.Global.Set("checkedScripts", map[string]struct{}{})
 
@@ -61,7 +73,6 @@ func main() {
 		fmt.Printf("Custom headers parsed: %d\n", len(utils.ExtractHeaders(opts.HeadersRaw)))
 	}
 
-	client := requester.New(requester.Config{TimeoutSeconds: opts.Timeout, DelaySeconds: opts.Delay, Proxy: opts.Proxy})
 	runner := scan.NewRunner(client)
 	scanReport, err := runner.Run(opts.URL, opts.Data, headers, opts.JSON, opts.Encode)
 	if err != nil {
@@ -77,6 +88,47 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("Scan report written: %s\n", opts.OutputJSON)
+	}
+}
+
+func runCrawl(opts *options.Options, headers map[string]string, client *requester.Client) {
+	seeds := []string{}
+	if opts.URL != "" {
+		seeds = append(seeds, opts.URL)
+	}
+	if opts.SeedsFile != "" {
+		items, err := files.ReadLines(opts.SeedsFile)
+		if err != nil {
+			fmt.Printf("Seed file error: %v\n", err)
+			os.Exit(1)
+		}
+		seeds = append(seeds, items...)
+	}
+	if len(seeds) == 0 {
+		fmt.Println("No crawl seeds provided.")
+		os.Exit(1)
+	}
+
+	blindPayload := ""
+	if opts.Blind {
+		blindPayload = opts.BlindPayload
+	}
+
+	runReport, err := crawl.Run(client, seeds, headers, crawl.Config{Level: opts.Level, SkipDOM: opts.SkipDOM}, blindPayload)
+	if err != nil {
+		fmt.Printf("Crawl error: %v\n", err)
+		os.Exit(1)
+	}
+
+	state.Global.Set("crawlReport", runReport)
+	printCrawlReport(runReport)
+
+	if opts.OutputJSON != "" {
+		if err := report.WriteJSON(opts.OutputJSON, runReport); err != nil {
+			fmt.Printf("Write output error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Crawl report written: %s\n", opts.OutputJSON)
 	}
 }
 
@@ -182,5 +234,18 @@ func printScanReport(scanReport *scan.Report) {
 			continue
 		}
 		fmt.Printf("- %s: reflections=%d status=%s\n", item.Name, item.Reflections, status)
+	}
+}
+
+func printCrawlReport(runReport crawl.RunReport) {
+	fmt.Printf("Crawl summary -> seeds=%d processed=%d forms=%d findings=%d\n", len(runReport.Seeds), runReport.TotalProcessed, runReport.TotalForms, runReport.TotalFindings)
+	for _, result := range runReport.Results {
+		domPotential := 0
+		for _, page := range result.Discovery.DOMPages {
+			if page.Report.Potential {
+				domPotential++
+			}
+		}
+		fmt.Printf("- seed=%s visited=%d forms=%d dom_potential=%d findings=%d\n", result.Seed, len(result.Discovery.Visited), len(result.Discovery.Forms), domPotential, len(result.Scan.Findings))
 	}
 }

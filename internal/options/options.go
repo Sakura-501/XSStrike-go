@@ -8,21 +8,27 @@ import (
 
 // Options stores CLI arguments in a typed structure.
 type Options struct {
-	URL         string
-	Data        string
-	Encode      string
-	Fuzzer      bool
-	JSON        bool
-	Path        bool
-	Timeout     int
-	ThreadCount int
-	Delay       int
-	Version     bool
-	HeadersRaw  string
-	Limit       int
-	Proxy       string
-	PayloadFile string
-	OutputJSON  string
+	URL          string
+	Data         string
+	Encode       string
+	Fuzzer       bool
+	JSON         bool
+	Path         bool
+	Crawl        bool
+	SeedsFile    string
+	Level        int
+	SkipDOM      bool
+	Blind        bool
+	BlindPayload string
+	Timeout      int
+	ThreadCount  int
+	Delay        int
+	Version      bool
+	HeadersRaw   string
+	Limit        int
+	Proxy        string
+	PayloadFile  string
+	OutputJSON   string
 }
 
 func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
@@ -35,6 +41,12 @@ func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
 	fs.BoolVar(&opts.Fuzzer, "fuzzer", false, "run fuzzer mode")
 	fs.BoolVar(&opts.JSON, "json", false, "treat post data as json")
 	fs.BoolVar(&opts.Path, "path", false, "inject payloads in path")
+	fs.BoolVar(&opts.Crawl, "crawl", false, "enable crawl mode")
+	fs.StringVar(&opts.SeedsFile, "seeds", "", "load crawling seeds from file")
+	fs.IntVar(&opts.Level, "level", 2, "crawl depth level")
+	fs.BoolVar(&opts.SkipDOM, "skip-dom", false, "skip DOM analysis")
+	fs.BoolVar(&opts.Blind, "blind", false, "inject blind payload while crawling")
+	fs.StringVar(&opts.BlindPayload, "blind-payload", "", "blind payload content")
 	fs.IntVar(&opts.Timeout, "timeout", config.DefaultTimeout, "http timeout in seconds")
 	fs.IntVar(&opts.ThreadCount, "threads", config.DefaultThreadCount, "number of worker threads")
 	fs.IntVar(&opts.Delay, "delay", config.DefaultDelay, "delay between requests in seconds")

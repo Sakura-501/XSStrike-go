@@ -29,6 +29,9 @@ func TestParseDefaults(t *testing.T) {
 	if opts.OutputJSON != "" {
 		t.Fatalf("output json should default to empty")
 	}
+	if opts.Level != 2 {
+		t.Fatalf("crawl level default mismatch: %d", opts.Level)
+	}
 }
 
 func TestParseFlags(t *testing.T) {
@@ -45,6 +48,11 @@ func TestParseFlags(t *testing.T) {
 		"--encode", "base64",
 		"--proxy", "http://127.0.0.1:8080",
 		"--output", "out.json",
+		"--crawl",
+		"--seeds", "seeds.txt",
+		"--level", "3",
+		"--blind",
+		"--blind-payload", "xss.example/abc",
 	})
 	if err != nil {
 		t.Fatalf("unexpected parse error: %v", err)
@@ -53,7 +61,7 @@ func TestParseFlags(t *testing.T) {
 	if opts.URL != "https://target.local" {
 		t.Fatalf("url mismatch: got %q", opts.URL)
 	}
-	if !opts.JSON || !opts.Path || !opts.Fuzzer {
+	if !opts.JSON || !opts.Path || !opts.Fuzzer || !opts.Crawl || !opts.Blind {
 		t.Fatalf("boolean flags were not parsed correctly: %+v", opts)
 	}
 	if opts.Timeout != 20 || opts.ThreadCount != 3 || opts.Delay != 1 {
@@ -67,5 +75,11 @@ func TestParseFlags(t *testing.T) {
 	}
 	if opts.OutputJSON != "out.json" {
 		t.Fatalf("output json mismatch: got %q", opts.OutputJSON)
+	}
+	if opts.SeedsFile != "seeds.txt" || opts.Level != 3 {
+		t.Fatalf("crawl args mismatch: %+v", opts)
+	}
+	if opts.BlindPayload != "xss.example/abc" {
+		t.Fatalf("blind payload mismatch: %q", opts.BlindPayload)
 	}
 }
