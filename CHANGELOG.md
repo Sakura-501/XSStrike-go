@@ -22,11 +22,18 @@ and this project follows the migration-first workflow:
 - CLI integration for scan flow in default URL mode
 - File payload mode (`-f/--file`) in fuzzer workflow
 - JSON report writer (`--output/--output-json`)
+- Added `db` datasets for compatibility (`wafSignatures.json`, `definitions.json`)
+- Signature-based WAF detection and scan integration
+- Crawl discovery engine with link/form extraction
+- Crawl form scanner with optional blind payload injection
+- CLI crawl mode with seeds/depth options
+- Payload-file bruteforce mode in scan workflow
+- Python behavior parity tests for selected modules
+- GitHub Actions CI workflow (`go test`)
 
 ### Planned
 
-- Crawler mode and seed management
-- WAF detection integration
+- Advanced context scoring and plugin parity improvements
 
 ## [0.1.0-alpha] - 2026-02-27
 

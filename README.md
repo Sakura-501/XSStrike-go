@@ -53,11 +53,16 @@
 - `--fuzzer`（向量模式 + 文件 payload 模式）
 - `--encode base64` 编码链路
 - 扫描报告 JSON 输出
+- crawl 模式（seed + level + DOM 检测 + form 提取）
+- crawl 表单扫描与 blind payload 注入
+- WAF 签名检测（基于 `db/wafSignatures.json`）
+- payload 文件 bruteforce（扫描模式）
+- Python 行为兼容测试（核心函数）
+- CI 自动测试（GitHub Actions）
 
 未实现（后续迁移）：
-- 爬虫与种子递归模式
-- WAF 检测与更完整上下文分析与利用链评分
-- blind XSS 与多模式统一工作流增强
+- 高级上下文语法分析与利用链评分（持续优化）
+- 插件生态迁移（如 retireJS 扩展）
 
 ## 安装与运行
 
@@ -171,12 +176,59 @@ go run ./cmd/xsstrike-go \
 - 输出参数反射统计
 - 输出 DOM source/sink 分析结果
 
+### 9) Crawl 模式（单 seed）
+
+```bash
+go run ./cmd/xsstrike-go \
+  --crawl \
+  --url "https://example.com" \
+  --level 2
+```
+
+作用：
+- 爬取同域链接
+- 提取表单
+- 对提取表单执行反射检测
+
+### 10) Crawl 模式（多 seed 文件）
+
+```bash
+go run ./cmd/xsstrike-go \
+  --crawl \
+  --seeds seeds.txt \
+  --level 2 \
+  --output crawl-report.json
+```
+
+作用：
+- 批量目标种子爬取与汇总
+- 输出 JSON 汇总报告
+
+### 11) 扫描模式 payload bruteforce
+
+```bash
+go run ./cmd/xsstrike-go \
+  --url "https://example.com/?q=1" \
+  --file default \
+  --output bruteforce.json
+```
+
+作用：
+- 逐参数逐 payload 测试反射
+- 记录命中 payload 与反射次数
+
 ## 参数说明（当前版本）
 
 - `-u, --url`：目标 URL
 - `--data`：POST/请求数据
 - `--json`：按 JSON body 解析 `--data`
 - `--path`：路径注入模式（预留）
+- `--crawl`：开启 crawl 模式
+- `--seeds`：从文件载入 crawl seeds
+- `--level`：crawl 深度
+- `--skip-dom`：crawl 时跳过 DOM 分析
+- `--blind`：crawl 表单扫描时发送 blind payload
+- `--blind-payload`：blind payload 内容
 - `--fuzzer`：进入 fuzz 输出模式
 - `--encode`：payload 编码（已开始接入）
 - `--headers`：自定义 header 字符串
@@ -185,7 +237,7 @@ go run ./cmd/xsstrike-go \
 - `--delay`：请求间隔（秒）
 - `--limit`：fuzzer 模式输出条数
 - `--proxy`：代理地址（如 `http://127.0.0.1:8080`）
-- `-f, --file`：fuzzer 载入 payload 文件（`default` 使用内置集）
+- `-f, --file`：载入 payload 文件（fuzzer 和 bruteforce 都可用）
 - `--output, --output-json`：将扫描报告写入 JSON 文件
 - `-v, --version`：显示版本
 
@@ -230,9 +282,21 @@ go test ./...
 
 ### Phase 5: Crawl & Extended
 
-- [ ] crawl 模式
-- [ ] payload 文件 bruteforce
-- [ ] WAF 检测与策略扩展
+- [x] crawl 模式
+- [x] payload 文件 bruteforce
+- [x] WAF 检测与策略扩展
+
+### Phase 6: Hardening
+
+- [x] 测试覆盖提升（核心模块均有单测）
+- [x] Python 行为兼容检查（selected parity tests）
+- [x] 文档与 CI 收尾
+
+## 迁移差异说明
+
+- 本仓库优先保证可维护性与可测试性，部分高级利用链评分尚未完全对齐 Python 版本。
+- DOM 检测当前为 source/sink 骨架实现，后续可继续增强 data-flow 深度。
+- crawl 目前聚焦同域链接与表单路径，不包含插件生态的全量迁移。
 
 ## 许可证
 
