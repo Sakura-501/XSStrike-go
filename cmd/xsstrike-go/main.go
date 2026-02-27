@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Sakura-501/XSStrike-go/internal/config"
+	"github.com/Sakura-501/XSStrike-go/internal/encoder"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/payload"
 	"github.com/Sakura-501/XSStrike-go/internal/state"
@@ -89,7 +90,12 @@ func runFuzzer(opts *options.Options) {
 
 	fmt.Printf("Fuzzer payloads: %d\n", len(config.DefaultFuzzes))
 	fmt.Printf("Generated context vectors: %d\n", len(vectors))
+	if opts.Encode == "base64" {
+		fmt.Println("Encoding: base64")
+	}
+
 	for i := 0; i < limit; i++ {
-		fmt.Printf("[%d] %s\n", i+1, vectors[i])
+		current := encoder.Apply(opts.Encode, vectors[i])
+		fmt.Printf("[%d] %s\n", i+1, current)
 	}
 }
