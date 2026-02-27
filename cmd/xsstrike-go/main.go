@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Sakura-501/XSStrike-go/internal/bruteforce"
 	"github.com/Sakura-501/XSStrike-go/internal/config"
 	"github.com/Sakura-501/XSStrike-go/internal/crawl"
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
@@ -71,6 +72,29 @@ func runSingleScan(opts *options.Options, headers map[string]string, client *req
 
 	if opts.HeadersRaw != "" {
 		fmt.Printf("Custom headers parsed: %d\n", len(utils.ExtractHeaders(opts.HeadersRaw)))
+	}
+
+	if opts.PayloadFile != "" {
+		payloadList, err := resolvePayloadList(opts.PayloadFile)
+		if err != nil {
+			fmt.Printf("Payload file error: %v\n", err)
+			os.Exit(1)
+		}
+		bfReport, err := bruteforce.Run(client, opts.URL, opts.Data, opts.JSON, headers, payloadList, opts.Encode)
+		if err != nil {
+			fmt.Printf("Bruteforce error: %v\n", err)
+			os.Exit(1)
+		}
+		state.Global.Set("bruteforceReport", bfReport)
+		printBruteforceReport(bfReport)
+		if opts.OutputJSON != "" {
+			if err := report.WriteJSON(opts.OutputJSON, bfReport); err != nil {
+				fmt.Printf("Write output error: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Bruteforce report written: %s\n", opts.OutputJSON)
+		}
+		return
 	}
 
 	runner := scan.NewRunner(client)
@@ -234,6 +258,17 @@ func printScanReport(scanReport *scan.Report) {
 			continue
 		}
 		fmt.Printf("- %s: reflections=%d status=%s\n", item.Name, item.Reflections, status)
+	}
+}
+
+func printBruteforceReport(bruteforceReport bruteforce.Report) {
+	if bruteforceReport.NoParams {
+		fmt.Println("Bruteforce -> no parameters to test.")
+		return
+	}
+	fmt.Printf("Bruteforce summary -> tested=%d hits=%d\n", bruteforceReport.Tested, len(bruteforceReport.Hits))
+	for _, hit := range bruteforceReport.Hits {
+		fmt.Printf("- param=%s reflections=%d payload=%s\n", hit.Param, hit.Reflections, hit.Payload)
 	}
 }
 
