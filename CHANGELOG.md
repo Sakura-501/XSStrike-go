@@ -16,6 +16,7 @@ and this project follows the migration-first workflow:
 - Added explicit release policy document (`RELEASE_POLICY.md`) with forced bump triggers
 - Added public XSS corpus fetch pipeline with deduplicated payload dataset (`benchmarks/corpus`)
 - Added local benchmark lab server and one-command evaluation pipeline (`cmd/xsstrike-lab`, `benchmarks/scripts/evaluate_tool.sh`)
+- Added baseline benchmark report for public-corpus evaluation (`benchmarks/reports/2026-02-27-baseline-v1.md`)
 - DOM source/sink analyzer scaffold (`internal/dom`)
 - Scan report now includes DOM analysis summary and findings
 - Target URL normalization with `https -> http` fallback
@@ -37,6 +38,10 @@ and this project follows the migration-first workflow:
 - Active request fuzzing mode for `--fuzzer --url` workflows
 - Python behavior parity tests for selected modules
 - GitHub Actions CI workflow (`go test`)
+
+### Changed
+
+- Improved benchmark lab WAF simulation to inspect all query values for block triggers
 
 ### Planned
 

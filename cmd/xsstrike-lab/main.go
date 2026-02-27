@@ -91,7 +91,11 @@ func domHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func wafHandler(w http.ResponseWriter, r *http.Request) {
-	q := strings.ToLower(r.URL.Query().Get("q"))
+	allValues := make([]string, 0, len(r.URL.Query()))
+	for _, values := range r.URL.Query() {
+		allValues = append(allValues, values...)
+	}
+	q := strings.ToLower(strings.Join(allValues, " "))
 	if strings.Contains(q, "<script") || strings.Contains(q, "alert(") || strings.Contains(q, "onerror=") {
 		w.Header().Set("cf-ray", "7fa4f6a3dcf9a123-SJC")
 		w.WriteHeader(http.StatusForbidden)

@@ -21,6 +21,8 @@ bash benchmarks/scripts/evaluate_tool.sh
 - `benchmarks/results/<run-id>/bruteforce_public.json`
 - `benchmarks/results/<run-id>/summary.md`
 
+可追踪的基线报告可提交到 `benchmarks/reports/`（例如 `2026-02-27-baseline-v1.md`）。
+
 ## 单独启动靶场
 
 ```bash

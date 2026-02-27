@@ -95,6 +95,7 @@ bash benchmarks/scripts/evaluate_tool.sh
 
 - 会自动启动本地靶场、执行 scan/fuzzer/bruteforce，并生成 `summary.md` 结论。
 - 详细说明见 [benchmarks/README.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/README.md)。
+- 当前基线报告见 [benchmarks/reports/2026-02-27-baseline-v1.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/reports/2026-02-27-baseline-v1.md)。
 
 ## 安装与运行
 
