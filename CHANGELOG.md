@@ -13,6 +13,7 @@ and this project follows the migration-first workflow:
 
 ### Added
 
+- Added explicit release policy document (`RELEASE_POLICY.md`) with forced bump triggers
 - DOM source/sink analyzer scaffold (`internal/dom`)
 - Scan report now includes DOM analysis summary and findings
 - Target URL normalization with `https -> http` fallback

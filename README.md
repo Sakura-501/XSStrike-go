@@ -10,6 +10,7 @@
 - 目标：逐步复刻 XSStrike 的 XSS 扫描与分析工作流
 - 方式：一个小功能点一个 commit，并立即 push
 - 原则：先迁移基础能力，再迁移复杂扫描链路
+- 发版：遵循 [RELEASE_POLICY.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/RELEASE_POLICY.md)，重大改动或累计 `10+` 功能点变更后强制发版
 
 ## 功能作用（按模块）
 
@@ -67,6 +68,12 @@
 未实现（后续迁移）：
 - 高级上下文语法分析与利用链评分（持续优化）
 - `updater` 与交互式 prompt 体验对齐
+
+## 版本与发布
+
+- 当前版本遵循语义化版本（SemVer）。
+- 当出现重大能力变化，或自上个版本累计超过 `10` 个功能小点，必须发布新版本。
+- 详细规则见 [RELEASE_POLICY.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/RELEASE_POLICY.md)。
 
 ## 安装与运行
 
