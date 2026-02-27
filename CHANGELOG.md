@@ -11,41 +11,26 @@ and this project follows the migration-first workflow:
 
 ## [Unreleased]
 
+### Planned
+
+- Advanced context scoring and plugin parity improvements
+
+## [1.1.0] - 2026-02-27
+
 ### Added
 
-- Added explicit release policy document (`RELEASE_POLICY.md`) with forced bump triggers
-- Added public XSS corpus fetch pipeline with deduplicated payload dataset (`benchmarks/corpus`)
-- Added local benchmark lab server and one-command evaluation pipeline (`cmd/xsstrike-lab`, `benchmarks/scripts/evaluate_tool.sh`)
-- Added baseline benchmark report for public-corpus evaluation (`benchmarks/reports/2026-02-27-baseline-v1.md`)
-- DOM source/sink analyzer scaffold (`internal/dom`)
-- Scan report now includes DOM analysis summary and findings
-- Target URL normalization with `https -> http` fallback
-- Richer migrated default payload/function/fuzz rule sets
-- HTTP requester abstraction with timeout/delay/proxy and GET/POST support
-- Baseline reflected parameter scanner (`internal/scan`)
-- CLI integration for scan flow in default URL mode
-- File payload mode (`-f/--file`) in fuzzer workflow
-- JSON report writer (`--output/--output-json`)
-- Added `db` datasets for compatibility (`wafSignatures.json`, `definitions.json`)
-- Signature-based WAF detection and scan integration
-- Crawl discovery engine with link/form extraction
-- Crawl form scanner with optional blind payload injection
-- CLI crawl mode with seeds/depth options
-- Payload-file bruteforce mode in scan workflow
-- Reflection analysis chain (`html parser`, `filter checker`, `checker`, context generator)
-- Path-mode injection support in scan and bruteforce workflows
-- RetireJS-compatible component vulnerability scanning integrated into crawl
-- Active request fuzzing mode for `--fuzzer --url` workflows
-- Python behavior parity tests for selected modules
-- GitHub Actions CI workflow (`go test`)
+- Reflection analysis chain (`html parser`, `filter checker`, `checker`, context generator`)
+- Scan enhancements: DOM findings, WAF detection, path-mode injection, reflection candidate scoring
+- Crawl enhancements: link/form extraction, optional blind payload injection, RetireJS component checks
+- Active request fuzzing (`--fuzzer --url`) and payload-file bruteforce mode
+- Public XSS corpus fetch + dedup pipeline (`benchmarks/corpus`)
+- Local benchmark lab + one-command evaluation + baseline report (`benchmarks/reports/2026-02-27-baseline-v1.md`)
+- Python compatibility tests and CI workflow (`go test`)
+- Release policy document with forced version-bump triggers (`RELEASE_POLICY.md`)
 
 ### Changed
 
 - Improved benchmark lab WAF simulation to inspect all query values for block triggers
-
-### Planned
-
-- Advanced context scoring and plugin parity improvements
 
 ## [0.1.0-alpha] - 2026-02-27
 
