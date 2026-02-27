@@ -44,14 +44,20 @@
 - Go CLI 入口（banner/version/help）
 - 默认配置与参数解析
 - header/params 工具函数
-- 最小 payload 生成器
-- `--fuzzer` 基础输出模式
+- converter 与运行时变量存储工具
+- 字符串/脚本/URL 上下文辅助函数
+- HTTP requester（GET/POST、JSON/Form、proxy、timeout、delay）
+- reflected 参数扫描最小闭环
+- DOM source/sink 分析骨架
+- payload 生成器（扩展规则集）
+- `--fuzzer`（向量模式 + 文件 payload 模式）
+- `--encode base64` 编码链路
+- 扫描报告 JSON 输出
 
 未实现（后续迁移）：
-- 完整 reflected/DOM XSS 扫描流程
 - 爬虫与种子递归模式
-- WAF 检测与更完整上下文分析
-- 文件 payload bruteforce 与 blind XSS 统一工作流
+- WAF 检测与更完整上下文分析与利用链评分
+- blind XSS 与多模式统一工作流增强
 
 ## 安装与运行
 
@@ -143,6 +149,28 @@ go run ./cmd/xsstrike-go --fuzzer --limit 10
 - 输出 fuzz payload 规模
 - 生成并展示上下文向量样例
 
+### 7) 文件 payload 模式（兼容 `-f/--file`）
+
+```bash
+go run ./cmd/xsstrike-go --fuzzer --file default --limit 10
+```
+
+作用：
+- 载入默认 payload 集或自定义 payload 文件
+- 支持与 `--encode base64` 叠加
+
+### 8) 扫描报告落盘（JSON）
+
+```bash
+go run ./cmd/xsstrike-go \
+  --url "https://example.com/?q=1" \
+  --output report.json
+```
+
+作用：
+- 输出参数反射统计
+- 输出 DOM source/sink 分析结果
+
 ## 参数说明（当前版本）
 
 - `-u, --url`：目标 URL
@@ -156,6 +184,9 @@ go run ./cmd/xsstrike-go --fuzzer --limit 10
 - `--threads`：并发线程数
 - `--delay`：请求间隔（秒）
 - `--limit`：fuzzer 模式输出条数
+- `--proxy`：代理地址（如 `http://127.0.0.1:8080`）
+- `-f, --file`：fuzzer 载入 payload 文件（`default` 使用内置集）
+- `--output, --output-json`：将扫描报告写入 JSON 文件
 - `-v, --version`：显示版本
 
 ## 开发与测试
@@ -182,20 +213,20 @@ go test ./...
 ### Phase 2: Utility Migration
 
 - [x] `extractHeaders` / `getUrl` / `getParams` 迁移
-- [ ] `converter`、运行时变量工具迁移
-- [ ] 更多字符串与上下文辅助函数迁移
+- [x] `converter`、运行时变量工具迁移
+- [x] 更多字符串与上下文辅助函数迁移
 
 ### Phase 3: Payload & Fuzz
 
 - [x] `randomUpper` + 生成器核心循环迁移
 - [x] `--fuzzer` 最小闭环
-- [ ] 编码链路与更多 payload 规则迁移
+- [x] 编码链路与更多 payload 规则迁移
 
 ### Phase 4: Scan Core
 
-- [ ] HTTP requester（timeout/proxy/headers）
-- [ ] reflected scan 最小闭环
-- [ ] DOM 分析骨架
+- [x] HTTP requester（timeout/proxy/headers）
+- [x] reflected scan 最小闭环
+- [x] DOM 分析骨架
 
 ### Phase 5: Crawl & Extended
 
