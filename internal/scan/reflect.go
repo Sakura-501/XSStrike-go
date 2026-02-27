@@ -50,9 +50,10 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 		method = "POST"
 	}
 
-	base := utils.GetURL(target, isGET)
 	params := utils.ParseParams(target, data, jsonData)
-	report := &Report{Target: target, Method: method, RequestBase: base, DOM: dom.Report{Checked: true, Findings: []dom.Finding{}}}
+	normalizedTarget := normalizeTarget(r.Client, target, params, headers, isGET, jsonData)
+	base := utils.GetURL(normalizedTarget, isGET)
+	report := &Report{Target: normalizedTarget, Method: method, RequestBase: base, DOM: dom.Report{Checked: true, Findings: []dom.Finding{}}}
 	if len(params) == 0 {
 		report.NoParams = true
 		return report, nil
