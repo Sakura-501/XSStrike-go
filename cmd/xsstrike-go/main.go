@@ -7,6 +7,7 @@ import (
 
 	"github.com/Sakura-501/XSStrike-go/internal/config"
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
+	"github.com/Sakura-501/XSStrike-go/internal/files"
 	"github.com/Sakura-501/XSStrike-go/internal/options"
 	"github.com/Sakura-501/XSStrike-go/internal/payload"
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
@@ -71,6 +72,17 @@ func main() {
 }
 
 func runFuzzer(opts *options.Options) {
+	if opts.PayloadFile != "" {
+		list, err := resolvePayloadList(opts.PayloadFile)
+		if err != nil {
+			fmt.Printf("Payload file error: %v\n", err)
+			os.Exit(1)
+		}
+		state.Global.Set("filePayloads", list)
+		printPayloadList("File payloads", list, opts)
+		return
+	}
+
 	vectors := payload.GenerateVectors(payload.GeneratorInput{
 		Fillings:      config.DefaultFillings,
 		EFillings:     config.DefaultEFillings,
@@ -100,6 +112,30 @@ func runFuzzer(opts *options.Options) {
 	for i := 0; i < limit; i++ {
 		current := encoder.Apply(opts.Encode, vectors[i])
 		fmt.Printf("[%d] %s\n", i+1, current)
+	}
+}
+
+func resolvePayloadList(value string) ([]string, error) {
+	if value == "default" {
+		return config.DefaultPayloads, nil
+	}
+	return files.ReadLines(value)
+}
+
+func printPayloadList(title string, list []string, opts *options.Options) {
+	limit := opts.Limit
+	if limit < 0 {
+		limit = 0
+	}
+	if limit > len(list) {
+		limit = len(list)
+	}
+	fmt.Printf("%s: %d\n", title, len(list))
+	if opts.Encode == "base64" {
+		fmt.Println("Encoding: base64")
+	}
+	for i := 0; i < limit; i++ {
+		fmt.Printf("[%d] %s\n", i+1, encoder.Apply(opts.Encode, list[i]))
 	}
 }
 

