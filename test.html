@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XSStrike-go Local Test Page</title>
+  <style>
+    body { font-family: monospace; margin: 24px; }
+    .box { border: 1px solid #ccc; padding: 12px; margin-bottom: 12px; }
+    .title { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>XSStrike-go Test HTML</h1>
+  <p>Use query params: <code>?a=...&b=...&c=...&d=...</code></p>
+
+  <div class="box">
+    <div class="title">document.writeln (a)</div>
+    <pre>document.writeln(new URL(window.location.href).searchParams.get("a"))</pre>
+    <script>document.writeln(new URL(window.location.href).searchParams.get("a"));</script>
+  </div>
+
+  <div class="box">
+    <div class="title">document.write (b)</div>
+    <pre>document.write(new URLSearchParams(window.location.search).get("b"))</pre>
+    <script>document.write(new URLSearchParams(window.location.search).get("b"));</script>
+  </div>
+
+  <div class="box">
+    <div class="title">eval (c)</div>
+    <pre>eval(new URLSearchParams(window.location.search).get("c") || "")</pre>
+    <script>eval(new URLSearchParams(window.location.search).get("c") || "");</script>
+  </div>
+
+  <div class="box">
+    <div class="title">innerHTML (d)</div>
+    <div id="xss-d"></div>
+    <pre>document.querySelector("#xss-d").innerHTML = new URLSearchParams(window.location.search).get("d")</pre>
+    <script>document.querySelector("#xss-d").innerHTML = new URLSearchParams(window.location.search).get("d");</script>
+  </div>
+</body>
+</html>
