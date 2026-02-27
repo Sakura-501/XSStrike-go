@@ -28,6 +28,9 @@ and this project follows the migration-first workflow:
 - Crawl form scanner with optional blind payload injection
 - CLI crawl mode with seeds/depth options
 - Payload-file bruteforce mode in scan workflow
+- Reflection analysis chain (`html parser`, `filter checker`, `checker`, context generator)
+- Path-mode injection support in scan and bruteforce workflows
+- RetireJS-compatible component vulnerability scanning integrated into crawl
 - Python behavior parity tests for selected modules
 - GitHub Actions CI workflow (`go test`)
 

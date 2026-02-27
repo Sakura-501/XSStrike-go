@@ -59,10 +59,13 @@
 - payload 文件 bruteforce（扫描模式）
 - Python 行为兼容测试（核心函数）
 - CI 自动测试（GitHub Actions）
+- 反射上下文链路：`html parser -> filter checker -> checker -> candidate generator`
+- `--path` 路径注入模式（scan + bruteforce）
+- crawl 中集成 retirejs 组件漏洞扫描（基于 `db/definitions.json`）
 
 未实现（后续迁移）：
 - 高级上下文语法分析与利用链评分（持续优化）
-- 插件生态迁移（如 retireJS 扩展）
+- `updater` 与交互式 prompt 体验对齐
 
 ## 安装与运行
 
@@ -217,12 +220,24 @@ go run ./cmd/xsstrike-go \
 - 逐参数逐 payload 测试反射
 - 记录命中 payload 与反射次数
 
+### 12) 路径注入模式（scan/bruteforce）
+
+```bash
+go run ./cmd/xsstrike-go \
+  --url "https://example.com/a/b" \
+  --path
+```
+
+作用：
+- 将 URL 路径段视为注入点
+- 支持与 `--file` bruteforce 组合
+
 ## 参数说明（当前版本）
 
 - `-u, --url`：目标 URL
 - `--data`：POST/请求数据
 - `--json`：按 JSON body 解析 `--data`
-- `--path`：路径注入模式（预留）
+- `--path`：路径注入模式（启用路径段注入）
 - `--crawl`：开启 crawl 模式
 - `--seeds`：从文件载入 crawl seeds
 - `--level`：crawl 深度
@@ -296,7 +311,7 @@ go test ./...
 
 - 本仓库优先保证可维护性与可测试性，部分高级利用链评分尚未完全对齐 Python 版本。
 - DOM 检测当前为 source/sink 骨架实现，后续可继续增强 data-flow 深度。
-- crawl 目前聚焦同域链接与表单路径，不包含插件生态的全量迁移。
+- crawl 已集成 retirejs 规则扫描，但插件生态仍可继续扩展。
 
 ## 许可证
 
