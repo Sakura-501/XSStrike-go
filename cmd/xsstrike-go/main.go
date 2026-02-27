@@ -273,7 +273,7 @@ func printBruteforceReport(bruteforceReport bruteforce.Report) {
 }
 
 func printCrawlReport(runReport crawl.RunReport) {
-	fmt.Printf("Crawl summary -> seeds=%d processed=%d forms=%d findings=%d\n", len(runReport.Seeds), runReport.TotalProcessed, runReport.TotalForms, runReport.TotalFindings)
+	fmt.Printf("Crawl summary -> seeds=%d processed=%d forms=%d findings=%d js_findings=%d\n", len(runReport.Seeds), runReport.TotalProcessed, runReport.TotalForms, runReport.TotalFindings, runReport.TotalJSFindings)
 	for _, result := range runReport.Results {
 		domPotential := 0
 		for _, page := range result.Discovery.DOMPages {
@@ -281,6 +281,6 @@ func printCrawlReport(runReport crawl.RunReport) {
 				domPotential++
 			}
 		}
-		fmt.Printf("- seed=%s visited=%d forms=%d dom_potential=%d findings=%d\n", result.Seed, len(result.Discovery.Visited), len(result.Discovery.Forms), domPotential, len(result.Scan.Findings))
+		fmt.Printf("- seed=%s visited=%d forms=%d dom_potential=%d findings=%d js_findings=%d\n", result.Seed, len(result.Discovery.Visited), len(result.Discovery.Forms), domPotential, len(result.Scan.Findings), len(result.Discovery.JSFindings))
 	}
 }

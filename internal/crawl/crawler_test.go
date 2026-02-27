@@ -77,3 +77,24 @@ func TestFormsFromURL(t *testing.T) {
 		t.Fatalf("unexpected method: %s", forms[0].Method)
 	}
 }
+
+func TestDiscoverDetectsVulnerableJS(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`<script src="/1.6.0/jquery.js"></script>`))
+	})
+	mux.HandleFunc("/1.6.0/jquery.js", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`/*! jquery */`))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	crawler := New(requester.New(requester.Config{TimeoutSeconds: 5}), Config{Level: 1, SkipDOM: true})
+	report, err := crawler.Discover(server.URL, map[string]string{})
+	if err != nil {
+		t.Fatalf("discover error: %v", err)
+	}
+	if len(report.JSFindings) == 0 {
+		t.Fatalf("expected js vulnerability findings")
+	}
+}

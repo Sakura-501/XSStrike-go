@@ -11,11 +11,12 @@ type SeedResult struct {
 }
 
 type RunReport struct {
-	Seeds          []string     `json:"seeds"`
-	Results        []SeedResult `json:"results"`
-	TotalProcessed int          `json:"total_processed"`
-	TotalForms     int          `json:"total_forms"`
-	TotalFindings  int          `json:"total_findings"`
+	Seeds           []string     `json:"seeds"`
+	Results         []SeedResult `json:"results"`
+	TotalProcessed  int          `json:"total_processed"`
+	TotalForms      int          `json:"total_forms"`
+	TotalFindings   int          `json:"total_findings"`
+	TotalJSFindings int          `json:"total_js_findings"`
 }
 
 func Run(client *requester.Client, seeds []string, headers map[string]string, cfg Config, blindPayload string) (RunReport, error) {
@@ -36,6 +37,7 @@ func Run(client *requester.Client, seeds []string, headers map[string]string, cf
 		runReport.TotalProcessed += discovery.Processed
 		runReport.TotalForms += len(discovery.Forms)
 		runReport.TotalFindings += len(scanSummary.Findings)
+		runReport.TotalJSFindings += len(discovery.JSFindings)
 	}
 
 	return runReport, nil

@@ -7,6 +7,7 @@ import (
 
 	"github.com/Sakura-501/XSStrike-go/internal/dom"
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
+	"github.com/Sakura-501/XSStrike-go/internal/retirejs"
 	"github.com/Sakura-501/XSStrike-go/internal/utils"
 )
 
@@ -28,11 +29,12 @@ type DOMPage struct {
 }
 
 type Report struct {
-	Seed      string    `json:"seed"`
-	Visited   []string  `json:"visited"`
-	Forms     []Form    `json:"forms"`
-	DOMPages  []DOMPage `json:"dom_pages"`
-	Processed int       `json:"processed"`
+	Seed       string             `json:"seed"`
+	Visited    []string           `json:"visited"`
+	Forms      []Form             `json:"forms"`
+	DOMPages   []DOMPage          `json:"dom_pages"`
+	JSFindings []retirejs.Finding `json:"js_findings"`
+	Processed  int                `json:"processed"`
 }
 
 type Config struct {
@@ -41,19 +43,21 @@ type Config struct {
 }
 
 type Crawler struct {
-	Client *requester.Client
-	Cfg    Config
+	Client  *requester.Client
+	Cfg     Config
+	Scanner *retirejs.Scanner
 }
 
 func New(client *requester.Client, cfg Config) *Crawler {
 	if cfg.Level <= 0 {
 		cfg.Level = 2
 	}
-	return &Crawler{Client: client, Cfg: cfg}
+	scanner, _ := retirejs.NewDefault()
+	return &Crawler{Client: client, Cfg: cfg, Scanner: scanner}
 }
 
 func (c *Crawler) Discover(seedURL string, headers map[string]string) (Report, error) {
-	report := Report{Seed: seedURL, Forms: []Form{}, Visited: []string{}, DOMPages: []DOMPage{}}
+	report := Report{Seed: seedURL, Forms: []Form{}, Visited: []string{}, DOMPages: []DOMPage{}, JSFindings: []retirejs.Finding{}}
 	if c.Client == nil {
 		return report, nil
 	}
@@ -83,6 +87,9 @@ func (c *Crawler) Discover(seedURL string, headers map[string]string) (Report, e
 
 			report.Forms = append(report.Forms, ExtractForms(pageURL, resp.Body)...)
 			report.Forms = append(report.Forms, FormsFromURL(pageURL)...)
+			if c.Scanner != nil {
+				report.JSFindings = append(report.JSFindings, c.Scanner.ScanPage(c.Client, pageURL, resp.Body, headers)...)
+			}
 
 			for _, href := range ExtractLinks(resp.Body) {
 				full := utils.HandleAnchor(pageURL, href)
