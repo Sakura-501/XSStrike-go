@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Sakura-501/XSStrike-go/internal/config"
+	"github.com/Sakura-501/XSStrike-go/internal/dom"
 	"github.com/Sakura-501/XSStrike-go/internal/encoder"
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
 	"github.com/Sakura-501/XSStrike-go/internal/utils"
@@ -27,6 +28,7 @@ type Report struct {
 	Findings    []ParamResult `json:"findings"`
 	NoParams    bool          `json:"no_params"`
 	RequestBase string        `json:"request_base"`
+	DOM         dom.Report    `json:"dom"`
 }
 
 type Runner struct {
@@ -50,10 +52,14 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 
 	base := utils.GetURL(target, isGET)
 	params := utils.ParseParams(target, data, jsonData)
-	report := &Report{Target: target, Method: method, RequestBase: base}
+	report := &Report{Target: target, Method: method, RequestBase: base, DOM: dom.Report{Checked: true, Findings: []dom.Finding{}}}
 	if len(params) == 0 {
 		report.NoParams = true
 		return report, nil
+	}
+
+	if domResp, err := baselineResponse(r.Client, base, params, headers, isGET, jsonData); err == nil {
+		report.DOM = dom.Analyze(domResp.Body)
 	}
 
 	keys := sortedKeys(params)
@@ -96,6 +102,13 @@ func (r *Runner) Run(target string, data string, headers map[string]string, json
 	}
 
 	return report, nil
+}
+
+func baselineResponse(client *requester.Client, base string, params map[string]string, headers map[string]string, isGET bool, jsonData bool) (*requester.Response, error) {
+	if isGET {
+		return client.DoGet(base, params, headers)
+	}
+	return client.DoPost(base, params, headers, jsonData)
 }
 
 func cloneMap(in map[string]string) map[string]string {

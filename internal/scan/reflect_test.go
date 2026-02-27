@@ -59,3 +59,25 @@ func TestRunNoParams(t *testing.T) {
 		t.Fatalf("expected no params report")
 	}
 }
+
+func TestRunDOMReport(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`<script>var x = location.search;document.write(x)</script>`))
+	}))
+	defer server.Close()
+
+	runner := NewRunner(requester.New(requester.Config{TimeoutSeconds: 5}))
+	report, err := runner.Run(server.URL+"?a=1", "", map[string]string{}, false, "")
+	if err != nil {
+		t.Fatalf("unexpected run error: %v", err)
+	}
+	if !report.DOM.Checked {
+		t.Fatalf("expected dom report checked")
+	}
+	if report.DOM.Sources == 0 || report.DOM.Sinks == 0 {
+		t.Fatalf("expected source and sink findings, got %+v", report.DOM)
+	}
+	if !report.DOM.Potential {
+		t.Fatalf("expected dom potential flag")
+	}
+}

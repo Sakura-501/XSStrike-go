@@ -164,6 +164,8 @@ func printScanReport(scanReport *scan.Report) {
 		fmt.Println("No parameters to test.")
 		return
 	}
+
+	fmt.Printf("DOM summary -> sources=%d sinks=%d potential=%t\n", scanReport.DOM.Sources, scanReport.DOM.Sinks, scanReport.DOM.Potential)
 	fmt.Printf("Scan summary -> method=%s tested=%d reflected=%d\n", scanReport.Method, scanReport.Tested, scanReport.Reflected)
 	for _, item := range scanReport.Findings {
 		status := "not-reflected"
