@@ -89,3 +89,27 @@ func TestDoPostJSON(t *testing.T) {
 		t.Fatalf("unexpected response body: %q", resp.Body)
 	}
 }
+
+func TestDoPostDoesNotMutateCallerHeaders(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("ok"))
+	}))
+	defer server.Close()
+
+	client := New(Config{TimeoutSeconds: 5})
+	headers := map[string]string{"X-Test": "yes"}
+
+	if _, err := client.DoPost(server.URL, map[string]string{"a": "1"}, headers, false); err != nil {
+		t.Fatalf("unexpected error for form post: %v", err)
+	}
+	if _, exists := headers["Content-Type"]; exists {
+		t.Fatalf("form post should not mutate caller headers: %+v", headers)
+	}
+
+	if _, err := client.DoPost(server.URL, map[string]string{"a": "1"}, headers, true); err != nil {
+		t.Fatalf("unexpected error for json post: %v", err)
+	}
+	if _, exists := headers["Content-Type"]; exists {
+		t.Fatalf("json post should not mutate caller headers: %+v", headers)
+	}
+}

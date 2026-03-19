@@ -66,27 +66,22 @@ func (c *Client) DoGet(rawURL string, params map[string]string, headers map[stri
 }
 
 func (c *Client) DoPost(rawURL string, data map[string]string, headers map[string]string, asJSON bool) (*Response, error) {
+	resolvedHeaders := cloneHeaders(headers)
 	if asJSON {
 		raw, err := json.Marshal(data)
 		if err != nil {
 			return nil, err
 		}
-		if headers == nil {
-			headers = map[string]string{}
-		}
-		headers["Content-Type"] = "application/json"
-		return c.doRequest(http.MethodPost, rawURL, bytes.NewReader(raw), headers, false)
+		resolvedHeaders["Content-Type"] = "application/json"
+		return c.doRequest(http.MethodPost, rawURL, bytes.NewReader(raw), resolvedHeaders, false)
 	}
 
 	form := url.Values{}
 	for key, value := range data {
 		form.Set(key, value)
 	}
-	if headers == nil {
-		headers = map[string]string{}
-	}
-	headers["Content-Type"] = "application/x-www-form-urlencoded"
-	return c.doRequest(http.MethodPost, rawURL, strings.NewReader(form.Encode()), headers, false)
+	resolvedHeaders["Content-Type"] = "application/x-www-form-urlencoded"
+	return c.doRequest(http.MethodPost, rawURL, strings.NewReader(form.Encode()), resolvedHeaders, false)
 }
 
 func (c *Client) doRequest(method, rawURL string, body io.Reader, headers map[string]string, _ bool) (*Response, error) {
