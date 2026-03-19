@@ -1,7 +1,11 @@
 package options
 
 import (
+	"errors"
 	"flag"
+	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/Sakura-501/XSStrike-go/internal/config"
 )
@@ -63,5 +67,57 @@ func Parse(fs *flag.FlagSet, args []string) (*Options, error) {
 	if err := fs.Parse(args); err != nil {
 		return nil, err
 	}
+	if err := opts.normalizeAndValidate(); err != nil {
+		return nil, err
+	}
 	return opts, nil
+}
+
+func (o *Options) normalizeAndValidate() error {
+	o.URL = strings.TrimSpace(o.URL)
+	o.Data = strings.TrimSpace(o.Data)
+	o.Encode = strings.ToLower(strings.TrimSpace(o.Encode))
+	o.SeedsFile = strings.TrimSpace(o.SeedsFile)
+	o.BlindPayload = strings.TrimSpace(o.BlindPayload)
+	o.HeadersRaw = strings.TrimSpace(o.HeadersRaw)
+	o.Proxy = strings.TrimSpace(o.Proxy)
+	o.PayloadFile = strings.TrimSpace(o.PayloadFile)
+	o.OutputJSON = strings.TrimSpace(o.OutputJSON)
+
+	if o.Timeout <= 0 {
+		return errors.New("timeout must be greater than 0")
+	}
+	if o.ThreadCount <= 0 {
+		return errors.New("threads must be greater than 0")
+	}
+	if o.Delay < 0 {
+		return errors.New("delay cannot be negative")
+	}
+	if o.Level < 0 {
+		return errors.New("level cannot be negative")
+	}
+	if o.Limit < 0 {
+		o.Limit = 0
+	}
+	if o.Encode != "" && o.Encode != "base64" {
+		return fmt.Errorf("unsupported encode mode %q", o.Encode)
+	}
+	if o.Proxy != "" {
+		parsed, err := url.Parse(o.Proxy)
+		if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+			return fmt.Errorf("invalid proxy url %q", o.Proxy)
+		}
+	}
+	if o.Crawl && o.URL == "" && o.SeedsFile == "" {
+		return errors.New("crawl mode requires --url or --seeds")
+	}
+	if o.Blind {
+		if !o.Crawl && o.SeedsFile == "" {
+			return errors.New("blind mode requires crawl mode or --seeds")
+		}
+		if o.BlindPayload == "" {
+			return errors.New("blind mode requires --blind-payload")
+		}
+	}
+	return nil
 }
