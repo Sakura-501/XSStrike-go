@@ -5,12 +5,14 @@
 
 项目目标是按小步提交迁移核心能力，确保每个功能点都可独立回滚、可测试、可持续推进。
 
+快速了解项目结构与开发约定，可先看 [AGENTS.md](./AGENTS.md)。
+
 ## 项目定位
 
 - 目标：逐步复刻 XSStrike 的 XSS 扫描与分析工作流
 - 方式：一个小功能点一个 commit，并立即 push
 - 原则：先迁移基础能力，再迁移复杂扫描链路
-- 发版：遵循 [RELEASE_POLICY.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/RELEASE_POLICY.md)，重大改动或累计 `10+` 功能点变更后强制发版
+- 发版：遵循 [RELEASE_POLICY.md](./RELEASE_POLICY.md)，重大改动或累计 `10+` 功能点变更后强制发版
 
 ## 功能作用（按模块）
 
@@ -73,11 +75,11 @@
 
 - 当前版本遵循语义化版本（SemVer）。
 - 当出现重大能力变化，或自上个版本累计超过 `10` 个功能小点，必须发布新版本。
-- 详细规则见 [RELEASE_POLICY.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/RELEASE_POLICY.md)。
+- 详细规则见 [RELEASE_POLICY.md](./RELEASE_POLICY.md)。
 
 ## 公开语料与评测准备
 
-- 项目已接入公开 XSS payload 语料拉取流程，见 [benchmarks/corpus/README.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/corpus/README.md)。
+- 项目已接入公开 XSS payload 语料拉取流程，见 [benchmarks/corpus/README.md](./benchmarks/corpus/README.md)。
 - 语料来源包括多个公开仓库，并会去重合并为 `benchmarks/corpus/public/merged.txt`。
 - 拉取命令：
 
@@ -94,8 +96,8 @@ bash benchmarks/scripts/evaluate_tool.sh
 ```
 
 - 会自动启动本地靶场、执行 scan/fuzzer/bruteforce，并生成 `summary.md` 结论。
-- 详细说明见 [benchmarks/README.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/README.md)。
-- 当前基线报告见 [benchmarks/reports/2026-02-27-baseline-v1.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/benchmarks/reports/2026-02-27-baseline-v1.md)。
+- 详细说明见 [benchmarks/README.md](./benchmarks/README.md)。
+- 当前基线报告见 [benchmarks/reports/2026-02-27-baseline-v1.md](./benchmarks/reports/2026-02-27-baseline-v1.md)。
 
 ## 安装与运行
 

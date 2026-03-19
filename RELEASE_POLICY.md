@@ -18,8 +18,8 @@
 
 ## 标准发版流程
 
-1. 更新 [CHANGELOG.md](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/CHANGELOG.md)。
-2. 更新 [internal/version/version.go](/Users/w1nd/Desktop/开源计划重写 2026/XSStrike-go/internal/version/version.go)。
+1. 更新 [CHANGELOG.md](./CHANGELOG.md)。
+2. 更新 [internal/version/version.go](./internal/version/version.go)。
 3. 执行 `go test ./...`，确保测试通过。
 4. 提交 release commit 并推送。
 5. 打版本 tag 并推送 tag（例如 `git tag v1.1.0 && git push origin v1.1.0`）。
