@@ -1,6 +1,8 @@
 package crawl
 
 import (
+	"strings"
+
 	"github.com/Sakura-501/XSStrike-go/internal/requester"
 )
 
@@ -20,10 +22,11 @@ type RunReport struct {
 }
 
 func Run(client *requester.Client, seeds []string, headers map[string]string, cfg Config, blindPayload string) (RunReport, error) {
-	runReport := RunReport{Seeds: seeds, Results: []SeedResult{}}
+	normalizedSeeds := normalizeSeeds(seeds)
+	runReport := RunReport{Seeds: normalizedSeeds, Results: []SeedResult{}}
 	crawler := New(client, cfg)
 
-	for _, seed := range seeds {
+	for _, seed := range normalizedSeeds {
 		discovery, err := crawler.Discover(seed, headers)
 		if err != nil {
 			return runReport, err
@@ -41,4 +44,21 @@ func Run(client *requester.Client, seeds []string, headers map[string]string, cf
 	}
 
 	return runReport, nil
+}
+
+func normalizeSeeds(seeds []string) []string {
+	seen := make(map[string]struct{}, len(seeds))
+	normalized := make([]string, 0, len(seeds))
+	for _, seed := range seeds {
+		trimmed := strings.TrimSpace(seed)
+		if trimmed == "" {
+			continue
+		}
+		if _, ok := seen[trimmed]; ok {
+			continue
+		}
+		seen[trimmed] = struct{}{}
+		normalized = append(normalized, trimmed)
+	}
+	return normalized
 }

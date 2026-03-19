@@ -37,3 +37,28 @@ func TestRun(t *testing.T) {
 		t.Fatalf("expected processed pages")
 	}
 }
+
+func TestRunNormalizesAndDeduplicatesSeeds(t *testing.T) {
+	hits := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		_, _ = w.Write([]byte(`<form action="/" method="get"><input name="q" value="1"></form>`))
+	}))
+	defer server.Close()
+
+	client := requester.New(requester.Config{TimeoutSeconds: 5})
+	runReport, err := Run(client, []string{"  " + server.URL + "  ", "", server.URL}, map[string]string{}, Config{Level: 1}, "")
+	if err != nil {
+		t.Fatalf("run error: %v", err)
+	}
+
+	if len(runReport.Seeds) != 1 || runReport.Seeds[0] != server.URL {
+		t.Fatalf("expected one normalized seed, got %+v", runReport.Seeds)
+	}
+	if len(runReport.Results) != 1 {
+		t.Fatalf("expected one deduplicated result, got %d", len(runReport.Results))
+	}
+	if hits == 0 {
+		t.Fatalf("expected server to be crawled")
+	}
+}
