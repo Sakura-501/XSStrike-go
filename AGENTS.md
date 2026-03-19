@@ -65,3 +65,44 @@ bash benchmarks/scripts/evaluate_tool.sh
 4. `internal/scan/reflect.go`
 5. `internal/crawl/run.go`
 6. `benchmarks/README.md`
+
+## 后续优化规划
+
+按优先级建议继续推进：
+
+### P0：稳定性与可维护性
+
+1. 给 `scan/crawl/fuzz/bruteforce` 补更多异常路径测试：
+   - 超时
+   - 非法 URL
+   - 空响应
+   - 代理错误
+2. 统一 CLI 错误输出与退出码，减少 `main.go` 中重复分支。
+3. 梳理共享工具函数，减少 `cloneMap`、参数归一化这类重复逻辑。
+
+### P1：扫描效果优化
+
+1. 提升反射上下文分析质量：
+   - 更细粒度区分 HTML/属性/JS/URL 上下文
+   - 给 candidate 增加更稳定的置信度规则
+2. 完善 path 模式与表单模式的 payload 注入覆盖。
+3. 增加更多 WAF/RetireJS 数据校验测试，降低误报和回归风险。
+
+### P2：性能与工程化
+
+1. 真正使用 `--threads` 做 crawl/scan 并发控制。
+2. 为 benchmark 增加更多固定 case，并输出更稳定的对比报告。
+3. 增加 CI 中的 `go vet` / benchmark smoke test。
+
+### P3：体验优化
+
+1. 优化命令行帮助文本与模式说明。
+2. 改进 JSON 报告字段可读性，方便后续接入别的工具链。
+3. 逐步补齐与原 Python 版的行为差异说明。
+
+## 执行策略
+
+- 每次只做一个小点。
+- 每个小点都带测试。
+- 每完成一个点就单独 commit。
+- README 只记录用户视角；规划和开发视角统一维护在本文件。
