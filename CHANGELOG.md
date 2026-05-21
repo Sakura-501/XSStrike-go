@@ -15,6 +15,12 @@ and this project follows the migration-first workflow:
 
 - Advanced context scoring and plugin parity improvements
 
+## [1.1.1] - 2026-05-21
+
+### Added
+
+- Added a README optimization plan for test safety, performance comparison, scan-effect improvements, and evidence documentation.
+
 ## [1.1.0] - 2026-02-27
 
 ### Added

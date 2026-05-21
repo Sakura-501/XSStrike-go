@@ -314,6 +314,34 @@ go test ./...
 3. `git commit`
 4. `git push`
 
+## 优化重写执行计划
+
+本轮优化以“可测试、可量化、可回滚”为约束继续推进。每个功能点单独提交，并同步递增版本号；所有网络交互测试只使用本地 `httptest` 或 `cmd/xsstrike-lab` 靶场，不对生产环境或未授权目标执行扫描。
+
+### P0: 安全与测试基线
+
+- [x] 保持核心模块单元测试覆盖：`options`、`requester`、`scan`、`crawl`、`fuzz`、`bruteforce`、`waf`、`retirejs`。
+- [x] 保持集成测试与本地靶场评测链路：`go test ./...` 与 `bash benchmarks/scripts/evaluate_tool.sh`。
+- [ ] 对新增并发、报告、扫描逻辑补异常路径测试，覆盖超时、空响应、非法 URL、代理错误等场景。
+
+### P1: 性能与资源效率
+
+- [ ] 让 `--threads` 在高请求量模式中真正生效，优先覆盖主动 fuzzer。
+- [ ] 对公开 payload 语料执行 1 线程与多线程对比，记录耗时、命中率、误报率和资源变化。
+- [ ] 在 benchmark 报告中保留可复现实验命令和本地靶场配置，便于后续审计。
+
+### P2: 扫描效果增强
+
+- [ ] 继续细化 HTML、属性、脚本、URL 上下文识别。
+- [ ] 优化 candidate 置信度规则，减少只有反射但不可利用的弱结果。
+- [ ] 增加 WAF 与 RetireJS 数据校验测试，降低规则更新带来的误报或漏报风险。
+
+### P3: 工程化与文档
+
+- [ ] 将性能对比结果归档到 `benchmarks/reports/`。
+- [ ] 补充开源软件重写佐证材料，覆盖功能、测试、安装使用、代码量、贡献记录、许可证说明。
+- [ ] 发布前同步更新 `CHANGELOG.md`、`internal/version/version.go` 与 README 使用说明。
+
 ## 重写计划（Roadmap）
 
 ### Phase 1: Foundation
