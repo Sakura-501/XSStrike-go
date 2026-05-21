@@ -2,5 +2,5 @@ package version
 
 const (
 	AppName = "XSStrike-go"
-	Version = "v1.1.1"
+	Version = "v1.2.0"
 )

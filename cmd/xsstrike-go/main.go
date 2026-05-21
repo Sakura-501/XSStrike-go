@@ -170,7 +170,7 @@ func runFuzzer(opts *options.Options) {
 			}
 			payloadList = list
 		}
-		fuzzReport, err := fuzz.Run(client, opts.URL, opts.Data, opts.JSON, opts.Path, headers, payloadList, opts.Encode)
+		fuzzReport, err := fuzz.RunWithConfig(client, opts.URL, opts.Data, opts.JSON, opts.Path, headers, payloadList, opts.Encode, fuzz.Config{Threads: opts.ThreadCount})
 		if err != nil {
 			fmt.Printf("Fuzz error: %v\n", err)
 			os.Exit(1)

@@ -54,7 +54,7 @@
 - DOM source/sink 分析骨架
 - payload 生成器（扩展规则集）
 - `--fuzzer`（向量模式 + 文件 payload 模式）
-- `--fuzzer` 主动发包模式（有 URL 时）
+- `--fuzzer` 主动发包模式（有 URL 时，支持 `--threads` 并发请求）
 - `--encode base64` 编码链路
 - 扫描报告 JSON 输出
 - crawl 模式（seed + level + DOM 检测 + form 提取）
@@ -293,7 +293,7 @@ go run ./cmd/xsstrike-go \
 - `--encode`：payload 编码（已开始接入）
 - `--headers`：自定义 header 字符串
 - `--timeout`：请求超时（秒）
-- `--threads`：并发线程数
+- `--threads`：并发线程数；当前主要用于 `--fuzzer --url` 主动发包模式
 - `--delay`：请求间隔（秒）
 - `--limit`：fuzzer 模式输出条数
 - `--proxy`：代理地址（如 `http://127.0.0.1:8080`）
@@ -326,7 +326,7 @@ go test ./...
 
 ### P1: 性能与资源效率
 
-- [ ] 让 `--threads` 在高请求量模式中真正生效，优先覆盖主动 fuzzer。
+- [x] 让 `--threads` 在高请求量模式中真正生效，优先覆盖主动 fuzzer。
 - [ ] 对公开 payload 语料执行 1 线程与多线程对比，记录耗时、命中率、误报率和资源变化。
 - [ ] 在 benchmark 报告中保留可复现实验命令和本地靶场配置，便于后续审计。
 

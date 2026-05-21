@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -27,6 +28,7 @@ type Client struct {
 	httpClient *http.Client
 	cfg        Config
 	rng        *rand.Rand
+	rngMu      sync.Mutex
 }
 
 type Response struct {
@@ -97,7 +99,7 @@ func (c *Client) doRequest(method, rawURL string, body io.Reader, headers map[st
 	resolvedHeaders := cloneHeaders(headers)
 	ua := resolvedHeaders["User-Agent"]
 	if ua == "" || ua == "$" {
-		resolvedHeaders["User-Agent"] = defaultUserAgents[c.rng.Intn(len(defaultUserAgents))]
+		resolvedHeaders["User-Agent"] = c.randomUserAgent()
 	}
 	for key, value := range resolvedHeaders {
 		req.Header.Set(key, value)
@@ -122,6 +124,12 @@ func (c *Client) doRequest(method, rawURL string, body io.Reader, headers map[st
 	}
 
 	return &Response{StatusCode: resp.StatusCode, Body: string(rawBody), Headers: outHeaders}, nil
+}
+
+func (c *Client) randomUserAgent() string {
+	c.rngMu.Lock()
+	defer c.rngMu.Unlock()
+	return defaultUserAgents[c.rng.Intn(len(defaultUserAgents))]
 }
 
 func cloneHeaders(in map[string]string) map[string]string {

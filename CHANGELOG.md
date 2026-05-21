@@ -15,6 +15,17 @@ and this project follows the migration-first workflow:
 
 - Advanced context scoring and plugin parity improvements
 
+## [1.2.0] - 2026-05-21
+
+### Added
+
+- Added ordered worker-pool execution for active fuzzer requests, controlled by `--threads`.
+- Added a concurrency regression test that verifies multiple fuzzer requests run in parallel.
+
+### Changed
+
+- Made requester user-agent randomization safe for concurrent request execution.
+
 ## [1.1.1] - 2026-05-21
 
 ### Added
