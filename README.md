@@ -60,7 +60,7 @@
 - crawl 模式（seed + level + DOM 检测 + form 提取）
 - crawl 表单扫描与 blind payload 注入
 - WAF 签名检测（基于 `db/wafSignatures.json`）
-- payload 文件 bruteforce（扫描模式）
+- payload 文件 bruteforce（扫描模式，支持 `--threads` 并发请求并保留全部命中）
 - Python 行为兼容测试（核心函数）
 - CI 自动测试（GitHub Actions）
 - 反射上下文链路：`html parser -> filter checker -> checker -> candidate generator`
@@ -293,7 +293,7 @@ go run ./cmd/xsstrike-go \
 - `--encode`：payload 编码（已开始接入）
 - `--headers`：自定义 header 字符串
 - `--timeout`：请求超时（秒）
-- `--threads`：并发线程数；当前主要用于 `--fuzzer --url` 主动发包模式
+- `--threads`：并发线程数；当前用于 `--fuzzer --url` 主动发包模式和 payload bruteforce 模式
 - `--delay`：请求间隔（秒）
 - `--limit`：fuzzer 模式输出条数
 - `--proxy`：代理地址（如 `http://127.0.0.1:8080`）

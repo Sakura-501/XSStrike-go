@@ -15,6 +15,17 @@ and this project follows the migration-first workflow:
 
 - Advanced context scoring and plugin parity improvements
 
+## [1.3.0] - 2026-05-21
+
+### Added
+
+- Added ordered worker-pool execution for payload bruteforce mode, controlled by `--threads`.
+- Added a bruteforce concurrency regression test.
+
+### Changed
+
+- Bruteforce mode now records every reflected payload per parameter, matching original XSStrike behavior instead of stopping at the first hit.
+
 ## [1.2.1] - 2026-05-21
 
 ### Added
