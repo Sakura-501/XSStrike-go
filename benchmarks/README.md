@@ -14,14 +14,23 @@
 bash benchmarks/scripts/evaluate_tool.sh
 ```
 
+可用环境变量固定主动 fuzzer 并发数，便于做性能对比：
+
+```bash
+XSSTRIKE_GO_THREADS=1 bash benchmarks/scripts/evaluate_tool.sh threads-1
+XSSTRIKE_GO_THREADS=10 bash benchmarks/scripts/evaluate_tool.sh threads-10
+```
+
 执行后会生成：
 
 - `benchmarks/results/<run-id>/scan_*.json`
 - `benchmarks/results/<run-id>/fuzzer_*.json`
 - `benchmarks/results/<run-id>/bruteforce_public.json`
+- `benchmarks/results/<run-id>/metadata.json`
 - `benchmarks/results/<run-id>/summary.md`
 
 可追踪的基线报告可提交到 `benchmarks/reports/`（例如 `2026-02-27-baseline-v1.md`）。
+本轮并发优化对比报告见 `benchmarks/reports/2026-05-21-fuzzer-threads.md`。
 
 ## 单独启动靶场
 

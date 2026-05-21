@@ -7,6 +7,8 @@ RUN_ID="${1:-$(date +%Y%m%d-%H%M%S)}"
 RUN_DIR="$RESULT_ROOT/$RUN_ID"
 LAB_ADDR="127.0.0.1:18080"
 LAB_BASE="http://$LAB_ADDR"
+THREADS="${XSSTRIKE_GO_THREADS:-10}"
+START_EPOCH="$(date +%s)"
 
 mkdir -p "$RUN_DIR"
 
@@ -50,6 +52,7 @@ go run ./cmd/xsstrike-go \
   --fuzzer \
   --url "$LAB_BASE/reflect/html?q=seed" \
   --file "$ROOT_DIR/benchmarks/corpus/public/merged.txt" \
+  --threads "$THREADS" \
   --output "$RUN_DIR/fuzzer_vuln.json" \
   >"$RUN_DIR/fuzzer_vuln.log" 2>&1
 
@@ -57,6 +60,7 @@ go run ./cmd/xsstrike-go \
   --fuzzer \
   --url "$LAB_BASE/reflect/sanitized?q=seed" \
   --file "$ROOT_DIR/benchmarks/corpus/public/merged.txt" \
+  --threads "$THREADS" \
   --output "$RUN_DIR/fuzzer_sanitized.json" \
   >"$RUN_DIR/fuzzer_sanitized.log" 2>&1
 
@@ -65,6 +69,18 @@ go run ./cmd/xsstrike-go \
   --file "$ROOT_DIR/benchmarks/corpus/public/merged.txt" \
   --output "$RUN_DIR/bruteforce_public.json" \
   >"$RUN_DIR/bruteforce_public.log" 2>&1
+
+ELAPSED_SECONDS="$(($(date +%s) - START_EPOCH))"
+TOOL_VERSION="$(go run ./cmd/xsstrike-go --version | awk '{print $2}')"
+cat >"$RUN_DIR/metadata.json" <<EOF
+{
+  "run_id": "$RUN_ID",
+  "tool_version": "$TOOL_VERSION",
+  "threads": $THREADS,
+  "lab_base": "$LAB_BASE",
+  "elapsed_seconds": $ELAPSED_SECONDS
+}
+EOF
 
 python3 "$ROOT_DIR/benchmarks/scripts/summarize_results.py" "$RUN_DIR"
 

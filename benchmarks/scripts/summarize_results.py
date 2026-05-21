@@ -10,6 +10,12 @@ def load(path: Path):
         return json.load(f)
 
 
+def load_optional(path: Path):
+    if not path.exists():
+        return {}
+    return load(path)
+
+
 def ratio(hits: int, tested: int) -> float:
     if tested <= 0:
         return 0.0
@@ -34,6 +40,7 @@ def main() -> int:
     fuzz_vuln = load(run_dir / "fuzzer_vuln.json")
     fuzz_sanitized = load(run_dir / "fuzzer_sanitized.json")
     bruteforce = load(run_dir / "bruteforce_public.json")
+    metadata = load_optional(run_dir / "metadata.json")
 
     vuln_ratio = ratio(fuzz_vuln.get("hits", 0), fuzz_vuln.get("tested", 0))
     sanitized_ratio = ratio(fuzz_sanitized.get("hits", 0), fuzz_sanitized.get("tested", 0))
@@ -71,6 +78,10 @@ def main() -> int:
     summary.append("# XSStrike-go Benchmark Summary")
     summary.append("")
     summary.append(f"- Run directory: `{run_dir}`")
+    if metadata:
+        summary.append(f"- Tool version: `{metadata.get('tool_version', '')}`")
+        summary.append(f"- Fuzzer threads: `{metadata.get('threads', '')}`")
+        summary.append(f"- Elapsed wall time: `{metadata.get('elapsed_seconds', '')}` seconds")
     summary.append(f"- Public corpus size: `{fuzz_vuln.get('tested', 0)}` payload tests")
     summary.append("")
     summary.append("## Metrics")

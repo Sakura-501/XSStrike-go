@@ -15,6 +15,14 @@ and this project follows the migration-first workflow:
 
 - Advanced context scoring and plugin parity improvements
 
+## [1.2.1] - 2026-05-21
+
+### Added
+
+- Added benchmark metadata capture for fuzzer threads, tool version, lab URL, and elapsed wall time.
+- Documented repeatable single-thread versus multi-thread benchmark commands.
+- Added a threaded fuzzer benchmark report with local lab comparison data.
+
 ## [1.2.0] - 2026-05-21
 
 ### Added
