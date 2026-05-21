@@ -35,3 +35,4 @@ Thumbs.db
 # Benchmark workspace
 benchmarks/corpus/public/_cache/
 benchmarks/results/
+benchmarks/.venv-xsstrike-python/

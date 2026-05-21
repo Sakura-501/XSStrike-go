@@ -15,6 +15,14 @@ and this project follows the migration-first workflow:
 
 - Advanced context scoring and plugin parity improvements
 
+## [1.3.1] - 2026-05-21
+
+### Added
+
+- Added millisecond benchmark timings and per-mode duration metadata.
+- Added a local comparison script for original Python XSStrike bruteforce versus XSStrike-go threaded bruteforce.
+- Added a benchmark report documenting the original Python bruteforce comparison and measured XSStrike-go speedup.
+
 ## [1.3.0] - 2026-05-21
 
 ### Added

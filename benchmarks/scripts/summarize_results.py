@@ -16,6 +16,13 @@ def load_optional(path: Path):
     return load(path)
 
 
+def duration(metadata: dict, key: str) -> str:
+    value = metadata.get("durations_ms", {}).get(key)
+    if value is None:
+        return "n/a"
+    return f"{value} ms"
+
+
 def ratio(hits: int, tested: int) -> float:
     if tested <= 0:
         return 0.0
@@ -81,7 +88,7 @@ def main() -> int:
     if metadata:
         summary.append(f"- Tool version: `{metadata.get('tool_version', '')}`")
         summary.append(f"- Fuzzer threads: `{metadata.get('threads', '')}`")
-        summary.append(f"- Elapsed wall time: `{metadata.get('elapsed_seconds', '')}` seconds")
+        summary.append(f"- Elapsed wall time: `{metadata.get('elapsed_ms', '')}` ms")
     summary.append(f"- Public corpus size: `{fuzz_vuln.get('tested', 0)}` payload tests")
     summary.append("")
     summary.append("## Metrics")
@@ -89,6 +96,8 @@ def main() -> int:
     summary.append(f"- Fuzzer (vulnerable endpoint): `{fuzz_vuln.get('hits', 0)}/{fuzz_vuln.get('tested', 0)}` (`{vuln_ratio:.2f}%`)")
     summary.append(f"- Fuzzer (sanitized endpoint): `{fuzz_sanitized.get('hits', 0)}/{fuzz_sanitized.get('tested', 0)}` (`{sanitized_ratio:.2f}%`)")
     summary.append(f"- Bruteforce tested: `{bruteforce.get('tested', 0)}`, hits: `{len(bruteforce.get('hits', []))}`")
+    if metadata:
+        summary.append(f"- Timings: fuzzer_vuln=`{duration(metadata, 'fuzzer_vuln')}`, fuzzer_sanitized=`{duration(metadata, 'fuzzer_sanitized')}`, bruteforce=`{duration(metadata, 'bruteforce_public')}`")
     summary.append(f"- Scan generated candidates: `html={scan_html.get('generated_candidates', 0)}`, `attr={scan_attr.get('generated_candidates', 0)}`, `script={scan_script.get('generated_candidates', 0)}`")
     summary.append(f"- WAF detected: `{scan_waf.get('waf', {}).get('detected', False)}` (`{scan_waf.get('waf', {}).get('name', '')}`)")
     summary.append(f"- DOM findings: `{dom_findings}`")
